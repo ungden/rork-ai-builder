@@ -34,7 +34,7 @@ export default async function DashboardLayout({
             </div>
             
             <Link 
-              href="/settings"
+              href="/dashboard/settings"
               className="p-2 text-muted-foreground hover:text-foreground transition-colors"
             >
               <Settings className="w-4 h-4" />

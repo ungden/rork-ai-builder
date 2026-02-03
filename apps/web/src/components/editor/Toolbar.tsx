@@ -191,7 +191,7 @@ export function Toolbar({ projectId, onSave, onExport }: ToolbarProps) {
           
           {/* Integrations */}
           <Link 
-            href="/settings"
+            href="/dashboard/settings"
             className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-gray-200 text-[12px] font-medium border border-[#27272a] rounded-md hover:bg-[#27272a] transition-colors"
           >
             <Box size={12} /> Integrations
@@ -254,7 +254,7 @@ export function Toolbar({ projectId, onSave, onExport }: ToolbarProps) {
           </button>
           
           {/* User Avatar */}
-          <Link href="/settings">
+          <Link href="/dashboard/settings">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 border border-white/10 ml-1 cursor-pointer hover:ring-2 hover:ring-purple-500/50" />
           </Link>
         </div>
