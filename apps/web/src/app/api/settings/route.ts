@@ -66,12 +66,15 @@ export async function PUT(request: NextRequest) {
     if (github_token !== undefined) updateData.github_token = github_token;
     if (expo_token !== undefined) updateData.expo_token = expo_token;
     
-    // Upsert settings
+    // Upsert settings with default values for new users
     const { data: settings, error } = await supabase
       .from('user_settings')
       .upsert({
         user_id: user.id,
-        ...updateData,
+        preferred_model: updateData.preferred_model ?? 'claude',
+        theme: updateData.theme ?? 'dark',
+        github_token: updateData.github_token,
+        expo_token: updateData.expo_token,
       }, {
         onConflict: 'user_id',
       })
