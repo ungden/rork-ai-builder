@@ -167,28 +167,31 @@ export function SandpackPreview({ className = '', showNavigator = false }: Sandp
         theme={darkTheme}
         files={finalFiles}
         options={{
+          bundlerURL: 'https://sandpack-bundler.codesandbox.io',
           externalResources: [
-            'https://unpkg.com/react-native-web@0.19.12/dist/react-native-web.min.js',
+            'https://unpkg.com/react-native-web@0.19.12/dist/react-native-web.umd.min.js',
           ],
           classes: {
             'sp-wrapper': 'h-full',
             'sp-layout': 'h-full',
           },
+          recompileMode: 'delayed',
+          recompileDelay: 1000,
         }}
         customSetup={{
           dependencies: {
             'react-native-web': '^0.19.12',
+            'react': '^18.2.0',
+            'react-dom': '^18.2.0',
           },
         }}
       >
-        <SandpackLayout>
-          <SandpackPreviewComponent
-            showNavigator={showNavigator}
-            showRefreshButton={true}
-            showOpenInCodeSandbox={false}
-            style={{ height: '100%' }}
-          />
-        </SandpackLayout>
+        <SandpackPreviewComponent
+          showNavigator={showNavigator}
+          showRefreshButton={true}
+          showOpenInCodeSandbox={false}
+          style={{ height: '100%' }}
+        />
       </SandpackProvider>
     </div>
   );

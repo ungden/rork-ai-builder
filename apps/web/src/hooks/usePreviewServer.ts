@@ -21,7 +21,22 @@ interface UsePreviewServerReturn {
 
 const PREVIEW_SERVER_URL = process.env.NEXT_PUBLIC_PREVIEW_SERVER_URL || 'http://localhost:3001';
 
+const isDev = typeof window !== 'undefined' ? window.location.hostname === 'localhost' : false;
+
 export function usePreviewServer(projectId: string | null): UsePreviewServerReturn {
+  if (!isDev) {
+    // Return no-op state for production
+    return {
+      isConnected: false,
+      isStarting: false,
+      webUrl: null,
+      expoUrl: null,
+      error: 'Preview server only available in development',
+      startPreview: async () => {},
+      stopPreview: async () => {},
+      syncFiles: async () => {},
+    };
+  }
   const [isConnected, setIsConnected] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
   const [webUrl, setWebUrl] = useState<string | null>(null);

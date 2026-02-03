@@ -42,20 +42,22 @@ interface PreviewPanelProps {
 }
 
 export function PreviewPanel({ projectId }: PreviewPanelProps) {
+  const isDev = typeof window !== 'undefined' ? window.location.hostname === 'localhost' : false;
   const [mode, setMode] = useState<PreviewMode>('sandpack');
   const [iframeKey, setIframeKey] = useState(0);
   const { projectName, files } = useProjectStore();
   
+  const previewServer = isDev ? usePreviewServer(projectId) : null;
   const {
-    isConnected,
-    isStarting,
-    webUrl,
-    expoUrl,
-    error,
-    startPreview,
-    stopPreview,
-    syncFiles,
-  } = usePreviewServer(projectId);
+    isConnected = false,
+    isStarting = false,
+    webUrl = null,
+    expoUrl = null,
+    error = null,
+    startPreview = async () => {},
+    stopPreview = async () => {},
+    syncFiles = async () => {},
+  } = previewServer || {};
   
   // Sync files to preview server when they change
   const handleSyncFiles = useCallback(async () => {
@@ -89,7 +91,7 @@ export function PreviewPanel({ projectId }: PreviewPanelProps) {
     handleSyncFiles();
   };
   
-  const isRunning = !!webUrl || !!expoUrl;
+  const isRunning = isDev ? (!!webUrl || !!expoUrl) : true; // Always "running" in sandpack mode
   
   return (
     <div className="h-full flex flex-col bg-[#050505]">
