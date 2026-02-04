@@ -116,6 +116,7 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
   const webPreviewRef = useRef<Window | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const snackRef = useRef<Snack | null>(null);
+  const [iframeReady, setIframeReady] = useState(false);
   
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -145,15 +146,32 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
   
   const dependencies = useMemo(() => extractDependencies(files), [files]);
   
-  // Initialize Snack
+  // Set iframe ref and mark ready
+  const handleIframeRef = useCallback((iframe: HTMLIFrameElement | null) => {
+    (iframeRef as React.MutableRefObject<HTMLIFrameElement | null>).current = iframe;
+    if (iframe?.contentWindow) {
+      (webPreviewRef as React.MutableRefObject<Window | null>).current = iframe.contentWindow;
+      setIframeReady(true);
+    }
+  }, []);
+  
+  // Initialize Snack ONLY after iframe is ready (so webPreviewRef.current is set)
   useEffect(() => {
+    if (!iframeReady) return;
+    
+    // Clean up previous snack if any
+    if (snackRef.current) {
+      snackRef.current.setOnline(false);
+      snackRef.current = null;
+    }
+    
     const snack = new Snack({
       files: snackFiles,
       dependencies,
       sdkVersion: SDK_VERSION,
       webPreviewRef,
       online: true,
-      codeChangesDelay: 1000,
+      codeChangesDelay: 500,
     });
     
     snackRef.current = snack;
@@ -178,14 +196,16 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
     
     // Initial state
     const initialState = snack.getState();
-    setWebPreviewURL(initialState.webPreviewURL);
+    if (initialState.webPreviewURL) {
+      setWebPreviewURL(initialState.webPreviewURL);
+      setIsLoading(false);
+    }
     onExpoURLChange?.(initialState.url);
     
+    // Timeout - if no preview URL after 10s, stop loading indicator
     const timeout = setTimeout(() => {
-      if (!webPreviewURL) {
-        setIsLoading(false);
-      }
-    }, 5000);
+      setIsLoading(false);
+    }, 10000);
     
     return () => {
       clearTimeout(timeout);
@@ -193,7 +213,8 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
       snack.setOnline(false);
       snackRef.current = null;
     };
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [iframeReady]);
   
   // Update files when they change
   useEffect(() => {
@@ -209,16 +230,11 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
     }
   }, [dependencies]);
   
-  const handleIframeRef = useCallback((iframe: HTMLIFrameElement | null) => {
-    (iframeRef as React.MutableRefObject<HTMLIFrameElement | null>).current = iframe;
-    (webPreviewRef as React.MutableRefObject<Window | null>).current = iframe?.contentWindow ?? null;
-  }, []);
-  
   const handleRefresh = useCallback(() => {
     if (snackRef.current) {
       setIsLoading(true);
       snackRef.current.sendCodeChanges();
-      setTimeout(() => setIsLoading(false), 1000);
+      setTimeout(() => setIsLoading(false), 2000);
     }
   }, []);
   

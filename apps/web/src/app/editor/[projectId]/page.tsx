@@ -10,7 +10,7 @@ import { PreviewPanel } from '@/components/editor/PreviewPanel';
 import { QRPanel } from '@/components/editor/QRPanel';
 import { Toolbar } from '@/components/editor/Toolbar';
 import { CommandPalette } from '@/components/editor/CommandPalette';
-import { useProjectStore, type EditorFile } from '@/stores/projectStore';
+import { useProjectStore, type EditorFile, type UIMessage } from '@/stores/projectStore';
 import { useToast } from '@/components/ui/Toast';
 
 type ViewMode = 'preview' | 'code';
@@ -121,7 +121,7 @@ export default function EditorPage() {
           return;
         }
         
-        const { project, files: projectFiles } = await projectRes.json();
+        const { project, files: projectFiles, messages: dbMessages } = await projectRes.json();
         
         // Convert files to editor format
         const files: Record<string, EditorFile> = {};
@@ -133,7 +133,22 @@ export default function EditorPage() {
           };
         });
         
-        setProject(projectId, project.name, files);
+        // Convert DB messages to UIMessage format
+        const messages: UIMessage[] = (dbMessages || []).map((m: {
+          id: string;
+          role: string;
+          content: string;
+          files_changed?: string[];
+          created_at: string;
+        }) => ({
+          id: m.id,
+          role: m.role as 'user' | 'assistant',
+          content: m.content,
+          filesChanged: m.files_changed || undefined,
+          timestamp: new Date(m.created_at),
+        }));
+        
+        setProject(projectId, project.name, files, messages);
         
       } catch (err) {
         setError('Failed to load project');

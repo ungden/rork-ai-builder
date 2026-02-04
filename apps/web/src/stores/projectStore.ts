@@ -29,7 +29,7 @@ interface ProjectState {
   streamingContent: string;
   
   // Actions
-  setProject: (id: string, name: string, files: Record<string, EditorFile>) => void;
+  setProject: (id: string, name: string, files: Record<string, EditorFile>, messages?: UIMessage[]) => void;
   setFiles: (files: Record<string, EditorFile>) => void;
   updateFile: (path: string, content: string) => void;
   deleteFile: (path: string) => void;
@@ -81,12 +81,12 @@ export const useProjectStore = create<ProjectState>()(
   immer((set, get) => ({
     ...initialState,
     
-    setProject: (id, name, files) => set((state) => {
+    setProject: (id, name, files, messages) => set((state) => {
       state.projectId = id;
       state.projectName = name;
       state.files = files;
       state.activeFile = Object.keys(files)[0] || null;
-      state.messages = [];
+      state.messages = messages || [];
     }),
     
     setFiles: (files) => set((state) => {

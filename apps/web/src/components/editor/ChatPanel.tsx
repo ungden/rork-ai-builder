@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Loader2, Mic, ChevronDown, ChevronRight, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode, RotateCcw, Code } from 'lucide-react';
+import { Send, Loader2, ChevronDown, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode, RotateCcw, Code } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useProjectStore } from '@/stores/projectStore';
 import { useAgentStore } from '@/stores/agentStore';
 import { AgentStatus } from './AgentStatus';
@@ -34,9 +35,11 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
   const [attachedImages, setAttachedImages] = useState<ImageAttachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [agentMode, setAgentMode] = useState(false); // Agent mode toggle
+  const [showModelMenu, setShowModelMenu] = useState(false); // Model dropdown
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const modelMenuRef = useRef<HTMLDivElement>(null);
   
   const { 
     messages, 
@@ -66,6 +69,19 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingContent]);
+  
+  // Close model menu on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(e.target as Node)) {
+        setShowModelMenu(false);
+      }
+    };
+    if (showModelMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showModelMenu]);
   
   // Process file to base64
   const processFile = useCallback((file: File): Promise<ImageAttachment | null> => {
@@ -470,10 +486,12 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
                     )}
                   </div>
                   <div className="pl-4">
-                    {/* Message text - strip file blocks */}
+                    {/* Message text - strip file blocks, render markdown */}
                     {msg.isStreaming && isLoading ? (
-                      <div className="text-gray-300 leading-relaxed text-[13px] whitespace-pre-wrap">
-                        {stripFileBlocks(streamingContent) || (
+                      <div className="text-gray-300 leading-relaxed text-[13px]">
+                        {stripFileBlocks(streamingContent) ? (
+                          <div className="chat-markdown"><ReactMarkdown>{stripFileBlocks(streamingContent)}</ReactMarkdown></div>
+                        ) : (
                           <span className="flex items-center gap-2 text-gray-500">
                             <Loader2 className="w-4 h-4 animate-spin" />
                             {isAgentRunning ? 'Agent is building...' : 'Generating...'}
@@ -481,8 +499,10 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
                         )}
                       </div>
                     ) : (
-                      <div className="text-gray-300 leading-relaxed text-[13px] whitespace-pre-wrap">
-                        {stripFileBlocks(msg.content) || (msg.filesChanged && msg.filesChanged.length > 0 ? 'Project settings updated successfully' : msg.content)}
+                      <div className="text-gray-300 leading-relaxed text-[13px]">
+                        <div className="chat-markdown"><ReactMarkdown>
+                          {stripFileBlocks(msg.content) || (msg.filesChanged && msg.filesChanged.length > 0 ? 'Done' : msg.content)}
+                        </ReactMarkdown></div>
                       </div>
                     )}
                     
@@ -581,7 +601,52 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
           />
           
           <div className="flex justify-between items-center mt-1 px-0.5">
-            <div className="flex gap-2 items-center">
+            <div className="flex gap-1.5 items-center">
+              {/* Model Selector Dropdown */}
+              <div className="relative" ref={modelMenuRef}>
+                <button
+                  onClick={() => setShowModelMenu(!showModelMenu)}
+                  className="flex items-center gap-1.5 bg-[#27272a] pl-2 pr-2 py-0.5 rounded-full text-gray-300 border border-[#3f3f46] hover:border-gray-500 transition-colors"
+                >
+                  <Sparkles className="w-3 h-3 text-blue-400" />
+                  <span className="font-semibold text-[11px]">
+                    {selectedModel === 'claude' ? 'Claude' : 'Gemini'}
+                  </span>
+                  <ChevronDown size={10} className="text-gray-500" />
+                </button>
+                
+                {showModelMenu && (
+                  <div className="absolute bottom-full left-0 mb-1 w-44 bg-[#18181b] border border-[#3f3f46] rounded-lg shadow-xl z-50 overflow-hidden">
+                    <button
+                      onClick={() => { setSelectedModel('gemini'); setShowModelMenu(false); }}
+                      className={`w-full px-3 py-2 flex items-center gap-2 text-left text-xs hover:bg-[#27272a] transition-colors ${
+                        selectedModel === 'gemini' ? 'text-blue-400' : 'text-gray-300'
+                      }`}
+                    >
+                      <Sparkles size={12} className="text-blue-400" />
+                      <div>
+                        <div className="font-medium">Gemini</div>
+                        <div className="text-[10px] text-gray-500">Fast, large context</div>
+                      </div>
+                      {selectedModel === 'gemini' && <span className="ml-auto text-blue-400">&#10003;</span>}
+                    </button>
+                    <button
+                      onClick={() => { setSelectedModel('claude'); setShowModelMenu(false); }}
+                      className={`w-full px-3 py-2 flex items-center gap-2 text-left text-xs hover:bg-[#27272a] transition-colors border-t border-[#27272a] ${
+                        selectedModel === 'claude' ? 'text-purple-400' : 'text-gray-300'
+                      }`}
+                    >
+                      <Bot size={12} className="text-purple-400" />
+                      <div>
+                        <div className="font-medium">Claude</div>
+                        <div className="text-[10px] text-gray-500">Precise, detailed code</div>
+                      </div>
+                      {selectedModel === 'claude' && <span className="ml-auto text-purple-400">&#10003;</span>}
+                    </button>
+                  </div>
+                )}
+              </div>
+              
               {/* Agent Mode Toggle */}
               <button
                 onClick={() => setAgentMode(!agentMode)}
@@ -592,23 +657,9 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
                 }`}
                 title={agentMode ? 'Agent Mode: ON - Will build complete app' : 'Agent Mode: OFF - Single response'}
               >
-                <Bot className="w-3 h-3" />
+                <Zap className="w-3 h-3" />
                 <span className="font-semibold text-[11px]">Agent</span>
               </button>
-              
-              {/* Model Selector - only show when not in agent mode */}
-              {!agentMode && (
-                <button
-                  onClick={() => setSelectedModel(selectedModel === 'claude' ? 'gemini' : 'claude')}
-                  className="flex items-center gap-1.5 bg-[#27272a] pl-2 pr-2.5 py-0.5 rounded-full text-gray-300 border border-[#3f3f46] hover:border-gray-500 transition-colors"
-                >
-                  <Sparkles className="w-3 h-3 text-blue-400" />
-                  <span className="font-semibold text-[11px]">
-                    {selectedModel === 'claude' ? 'Claude' : 'Gemini'}
-                  </span>
-                  <ChevronDown size={10} className="text-gray-500" />
-                </button>
-              )}
               
               {/* Hidden file input */}
               <input
@@ -635,10 +686,7 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
               </button>
             </div>
             
-            <div className="flex items-center gap-3">
-              <button className="p-1 text-gray-500 hover:text-gray-300 transition-colors">
-                <Mic size={16} />
-              </button>
+            <div className="flex items-center gap-2">
               <button
                 onClick={handleSend}
                 disabled={isLoading || (!input.trim() && attachedImages.length === 0)}
@@ -652,8 +700,6 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
               >
                 {isLoading ? (
                   <Loader2 size={16} className="animate-spin" />
-                ) : agentMode ? (
-                  <Zap size={16} />
                 ) : (
                   <Send size={16} />
                 )}
@@ -661,13 +707,6 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
             </div>
           </div>
         </div>
-        
-        {/* Agent mode hint */}
-        {agentMode && (
-          <p className="text-[10px] text-blue-400/70 mt-2 text-center">
-            Agent will autonomously plan, code, test, and debug your app
-          </p>
-        )}
       </div>
     </div>
   );

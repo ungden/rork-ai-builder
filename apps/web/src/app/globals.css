@@ -73,3 +73,61 @@ body {
 .animate-slide-in {
   animation: slideIn 0.3s ease-out;
 }
+
+/* Chat markdown styles */
+.chat-markdown p {
+  margin-bottom: 0.5em;
+}
+.chat-markdown p:last-child {
+  margin-bottom: 0;
+}
+.chat-markdown strong {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+.chat-markdown em {
+  font-style: italic;
+  color: #a1a1aa;
+}
+.chat-markdown h1, .chat-markdown h2, .chat-markdown h3 {
+  font-weight: 600;
+  color: #e4e4e7;
+  margin-top: 0.75em;
+  margin-bottom: 0.25em;
+}
+.chat-markdown h1 { font-size: 1.1em; }
+.chat-markdown h2 { font-size: 1.05em; }
+.chat-markdown h3 { font-size: 1em; }
+.chat-markdown ul, .chat-markdown ol {
+  padding-left: 1.25em;
+  margin-bottom: 0.5em;
+}
+.chat-markdown li {
+  margin-bottom: 0.2em;
+}
+.chat-markdown ol {
+  list-style-type: decimal;
+}
+.chat-markdown ul {
+  list-style-type: disc;
+}
+.chat-markdown code {
+  background: #27272a;
+  padding: 0.1em 0.35em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  color: #a5b4fc;
+}
+.chat-markdown pre {
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 6px;
+  padding: 0.75em;
+  margin: 0.5em 0;
+  overflow-x: auto;
+}
+.chat-markdown pre code {
+  background: none;
+  padding: 0;
+  color: #d4d4d8;
+}

@@ -37,7 +37,14 @@ export async function GET(
       return NextResponse.json({ error: filesError.message }, { status: 500 });
     }
     
-    return NextResponse.json({ project, files: files || [] });
+    // Get chat messages (ordered by creation time)
+    const { data: messages } = await supabase
+      .from('messages')
+      .select('id, role, content, model, files_changed, tokens_used, created_at')
+      .eq('project_id', id)
+      .order('created_at', { ascending: true });
+    
+    return NextResponse.json({ project, files: files || [], messages: messages || [] });
     
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
