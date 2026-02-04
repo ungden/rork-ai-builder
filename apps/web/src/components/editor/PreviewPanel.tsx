@@ -47,6 +47,13 @@ function extractDependencies(files: Record<string, { path: string; content: stri
     'expo-blur': { version: '*' },
     'expo-haptics': { version: '*' },
     '@expo/vector-icons': { version: '*' },
+    'expo-image': { version: '*' },
+    'expo-av': { version: '*' },
+    'expo-camera': { version: '*' },
+    'expo-image-picker': { version: '*' },
+    'react-native-safe-area-context': { version: '*' },
+    'react-native-reanimated': { version: '*' },
+    '@react-native-async-storage/async-storage': { version: '*' },
   };
   
   if (packageFile) {

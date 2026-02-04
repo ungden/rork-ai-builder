@@ -1,29 +1,25 @@
 /**
  * AI Context Injection System
  * Dynamically loads relevant documentation based on user prompts
+ * Updated for SDK 52 compatibility
  */
 
 // Keywords mapped to documentation topics
 const KEYWORD_TO_TOPIC: Record<string, string[]> = {
   // Navigation
-  'tabs': ['navigation', 'native-tabs'],
-  'tab': ['navigation', 'native-tabs'],
-  'nativetabs': ['navigation', 'native-tabs'],
+  'tabs': ['navigation', 'tabs'],
+  'tab': ['navigation', 'tabs'],
   'navigation': ['navigation'],
   'router': ['navigation'],
   'stack': ['navigation'],
   'modal': ['navigation'],
-  'sheet': ['navigation'],
   'link': ['navigation'],
   'route': ['navigation'],
   
   // Styling
   'style': ['styling'],
   'shadow': ['styling'],
-  'boxshadow': ['styling'],
   'border': ['styling'],
-  'borderradius': ['styling'],
-  'bordercurve': ['styling'],
   'animation': ['styling'],
   'layout': ['styling'],
   'responsive': ['styling'],
@@ -31,19 +27,15 @@ const KEYWORD_TO_TOPIC: Record<string, string[]> = {
   'theme': ['styling'],
   
   // Components
-  'icon': ['sf-symbols'],
-  'sf symbol': ['sf-symbols'],
-  'symbol': ['sf-symbols'],
+  'icon': ['icons'],
+  'ionicon': ['icons'],
   'image': ['components'],
   'camera': ['media'],
   'video': ['media'],
   'audio': ['media'],
   'blur': ['visual-effects'],
-  'glass': ['visual-effects'],
   'haptic': ['components'],
   'switch': ['components'],
-  'slider': ['components'],
-  'picker': ['components'],
   'input': ['components'],
   'text': ['styling'],
   
@@ -51,166 +43,157 @@ const KEYWORD_TO_TOPIC: Record<string, string[]> = {
   'photo': ['media'],
   'record': ['media'],
   'play': ['media'],
-  'media library': ['media'],
   'gallery': ['media'],
   
   // General
   'expo': ['expo-sdk'],
-  'expo go': ['expo-sdk'],
   'safe area': ['styling', 'expo-sdk'],
   'scrollview': ['styling'],
   'flatlist': ['styling'],
   'list': ['styling'],
 };
 
-// Topic to documentation content
+// Topic to documentation content (SDK 52 compatible)
 const TOPIC_DOCS: Record<string, string> = {
-  'navigation': `## Navigation Context
+  'navigation': `## Navigation Context (SDK 52)
 
-Use NativeTabs from 'expo-router/unstable-native-tabs' for native iOS tab bars:
+Use Tabs from 'expo-router' for tab navigation:
 \`\`\`tsx
-import { NativeTabs, Icon, Label, Badge } from 'expo-router/unstable-native-tabs';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
-<NativeTabs minimizeBehavior="onScrollDown">
-  <NativeTabs.Trigger name="index">
-    <Label>Home</Label>
-    <Icon sf="house.fill" />
-  </NativeTabs.Trigger>
-</NativeTabs>
+<Tabs>
+  <Tabs.Screen name="index" options={{
+    title: 'Home',
+    tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+  }} />
+</Tabs>
 \`\`\`
 
-Use Link.Preview and Link.Menu for context menus:
+Use Stack from 'expo-router' for stack navigation:
 \`\`\`tsx
-<Link href="/item">
-  <Link.Trigger><Pressable><Card /></Pressable></Link.Trigger>
-  <Link.Preview />
-  <Link.Menu>
-    <Link.MenuAction title="Share" icon="square.and.arrow.up" onPress={share} />
-  </Link.Menu>
-</Link>
+import { Stack } from 'expo-router';
+<Stack>
+  <Stack.Screen name="index" options={{ title: 'Home' }} />
+  <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+</Stack>
 \`\`\`
 
-For modals and sheets:
+Use Link for navigation:
 \`\`\`tsx
-<Stack.Screen name="sheet" options={{
-  presentation: 'formSheet',
-  sheetGrabberVisible: true,
-  sheetAllowedDetents: [0.5, 1.0],
-  contentStyle: { backgroundColor: 'transparent' }, // Liquid glass on iOS 26+
-}} />
+import { Link } from 'expo-router';
+<Link href="/details">Go to details</Link>
 \`\`\``,
 
-  'native-tabs': `## NativeTabs (SDK 54+)
+  'tabs': `## Tabs (SDK 52)
 
-ALWAYS prefer NativeTabs for the best iOS experience:
+Use Tabs from 'expo-router':
 \`\`\`tsx
-import { NativeTabs, Icon, Label, Badge } from 'expo-router/unstable-native-tabs';
+import { Tabs } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function TabLayout() {
   return (
-    <NativeTabs minimizeBehavior="onScrollDown">
-      <NativeTabs.Trigger name="index">
-        <Label>Home</Label>
-        <Icon sf="house.fill" />
-        <Badge>9+</Badge>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="(search)" role="search" />
-    </NativeTabs>
+    <Tabs screenOptions={{ tabBarActiveTintColor: '#007AFF' }}>
+      <Tabs.Screen name="index" options={{
+        title: 'Home',
+        tabBarIcon: ({ color, size }) => <Ionicons name="home" size={size} color={color} />,
+      }} />
+      <Tabs.Screen name="explore" options={{
+        title: 'Explore',
+        tabBarIcon: ({ color, size }) => <Ionicons name="compass" size={size} color={color} />,
+      }} />
+    </Tabs>
   );
 }
 \`\`\`
 
 Key rules:
-- Trigger 'name' must match route name exactly
-- Use \`role="search"\` for search tabs (place last)
-- Native tabs don't render headers - nest Stacks inside each tab`,
+- Each Tabs.Screen 'name' must match a route file/folder
+- Use tabBarIcon for tab icons with Ionicons
+- Set headerShown: false if nesting Stack inside tabs`,
 
-  'styling': `## Modern Styling Rules
+  'styling': `## Styling Rules (SDK 52)
 
-Use CSS boxShadow (NOT legacy shadow styles):
+Use StyleSheet.create and React Native shadow styles (NOT CSS boxShadow):
 \`\`\`tsx
-<View style={{ boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#1c1c1e',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+});
 \`\`\`
 
-Use borderCurve: 'continuous' for Apple-style corners:
+Use hex colors for theming (NOT PlatformColor):
 \`\`\`tsx
-<View style={{ borderRadius: 16, borderCurve: 'continuous' }} />
+const colors = {
+  background: '#0a0a0a',
+  surface: '#1c1c1e',
+  textPrimary: '#ffffff',
+  textSecondary: '#8e8e93',
+  accent: '#007AFF',
+};
 \`\`\`
 
-Use PlatformColor for dark mode:
+Use contentInsetAdjustmentBehavior="automatic" on ScrollView/FlatList for safe areas.`,
+
+  'icons': `## Icons (SDK 52)
+
+Use Ionicons from @expo/vector-icons (NOT expo-symbols):
 \`\`\`tsx
-import { PlatformColor } from 'react-native';
-<Text style={{ color: PlatformColor('label') }}>Primary text</Text>
-<View style={{ backgroundColor: PlatformColor('secondarySystemBackground') }} />
-\`\`\`
+import { Ionicons } from '@expo/vector-icons';
 
-Use contentInsetAdjustmentBehavior="automatic" on ScrollView/FlatList instead of SafeAreaView.`,
-
-  'sf-symbols': `## SF Symbols (expo-symbols)
-
-Use SF Symbols for native iOS icons. NEVER use @expo/vector-icons:
-\`\`\`tsx
-import { SymbolView } from 'expo-symbols';
-import { PlatformColor } from 'react-native';
-
-<SymbolView
-  name="house.fill"
-  tintColor={PlatformColor('label')}
-  size={24}
-/>
+<Ionicons name="home" size={24} color="#fff" />
+<Ionicons name="heart-outline" size={24} color="#8e8e93" />
 \`\`\`
 
 Common icons:
-- Navigation: house.fill, gear, magnifyingglass, plus, xmark, chevron.left/right
-- Media: play.fill, pause.fill, camera, photo, speaker.wave.2.fill
-- Social: heart/heart.fill, star/star.fill, person/person.fill
-- Actions: square.and.arrow.up (share), trash, pencil, bookmark`,
+- Navigation: home, settings, search, add, close, chevron-back/forward, menu
+- Media: play, pause, camera, image, mic, musical-notes
+- Social: heart, star, person, people, chatbubble
+- Actions: share, download, trash, pencil, bookmark`,
 
-  'media': `## Media (expo-audio, expo-video)
+  'media': `## Media (expo-av for SDK 52)
 
-Audio playback (use expo-audio, NOT expo-av):
+Audio playback (use expo-av, NOT expo-audio):
 \`\`\`tsx
-import { useAudioPlayer } from 'expo-audio';
-const player = useAudioPlayer({ uri: 'https://example.com/audio.mp3' });
-player.play();
+import { Audio } from 'expo-av';
+const { sound } = await Audio.Sound.createAsync({ uri: audioUrl });
+await sound.playAsync();
 \`\`\`
 
-Video playback (use expo-video, NOT expo-av):
+Video playback (use expo-av, NOT expo-video):
 \`\`\`tsx
-import { useVideoPlayer, VideoView } from 'expo-video';
-const player = useVideoPlayer(videoUrl, p => { p.loop = true; p.play(); });
-<VideoView player={player} allowsPictureInPicture nativeControls />
+import { Video, ResizeMode } from 'expo-av';
+<Video source={{ uri: videoUrl }} useNativeControls resizeMode={ResizeMode.CONTAIN} />
 \`\`\`
 
 Camera:
 \`\`\`tsx
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { GlassView } from 'expo-glass-effect';
-
-// Use GlassView buttons, mirror prop for selfie emulation
-<CameraView ref={cameraRef} mirror facing={facing} />
+<CameraView ref={cameraRef} facing={facing} style={{ flex: 1 }} />
 \`\`\``,
 
-  'visual-effects': `## Visual Effects
+  'visual-effects': `## Visual Effects (SDK 52)
 
-BlurView (expo-blur):
+BlurView (expo-blur) - the blur library available in SDK 52:
 \`\`\`tsx
 import { BlurView } from 'expo-blur';
-<BlurView tint="systemMaterial" intensity={80} style={{ borderRadius: 16, overflow: 'hidden' }} />
+<BlurView tint="dark" intensity={80} style={{ borderRadius: 16, overflow: 'hidden' }}>
+  <Text style={{ color: '#fff' }}>Blurred content</Text>
+</BlurView>
 \`\`\`
 
-GlassView (expo-glass-effect) for iOS 26+ liquid glass:
-\`\`\`tsx
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
+NOTE: expo-glass-effect / GlassView is NOT available in SDK 52. Use BlurView instead.`,
 
-<GlassView isInteractive style={{ borderRadius: 50, padding: 12 }}>
-  <Pressable onPress={action}>
-    <SymbolView name="plus" tintColor={PlatformColor('label')} size={24} />
-  </Pressable>
-</GlassView>
-\`\`\``,
-
-  'components': `## Modern Components
+  'components': `## Components (SDK 52)
 
 Use expo-image for all images:
 \`\`\`tsx
@@ -218,29 +201,31 @@ import { Image } from 'expo-image';
 <Image source={{ uri }} style={{ width: 200, height: 200 }} contentFit="cover" />
 \`\`\`
 
-Native controls with built-in haptics:
+Native controls:
 \`\`\`tsx
 import { Switch, TextInput } from 'react-native';
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import DateTimePicker from '@react-native-community/datetimepicker';
+<Switch value={enabled} onValueChange={setEnabled} trackColor={{ false: '#3a3a3c', true: '#30D158' }} />
 \`\`\`
 
 Conditional haptics:
 \`\`\`tsx
 import * as Haptics from 'expo-haptics';
-if (process.env.EXPO_OS === 'ios') {
+import { Platform } from 'react-native';
+if (Platform.OS === 'ios') {
   await Haptics.selectionAsync();
 }
 \`\`\``,
 
-  'expo-sdk': `## Expo SDK 54+ Rules
+  'expo-sdk': `## Expo SDK 52 Rules
 
-Library preferences:
-- expo-audio (NOT expo-av)
-- expo-video (NOT expo-av)
-- expo-symbols (NOT @expo/vector-icons)
-- process.env.EXPO_OS (NOT Platform.OS)
+Library preferences for SDK 52:
+- @expo/vector-icons Ionicons (NOT expo-symbols)
+- expo-av for audio/video (NOT expo-audio/expo-video)
+- Platform.OS (NOT process.env.EXPO_OS)
 - useWindowDimensions (NOT Dimensions.get())
+- React.useContext (NOT React.use)
+- StyleSheet.create for styles
+- React Native shadow styles (NOT CSS boxShadow)
 
 Project structure:
 - app/ for routes ONLY (never co-locate components)

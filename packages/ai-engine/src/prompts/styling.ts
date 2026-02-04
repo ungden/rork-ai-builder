@@ -1,69 +1,71 @@
 /**
- * Modern Expo Styling Rules
- * boxShadow, borderCurve, inline styles, safe areas
+ * Expo Styling Rules (SDK 52 compatible)
+ * StyleSheet.create, legacy shadows, safe areas
  */
 
-export const STYLING_RULES = `## Modern Styling Rules
+export const STYLING_RULES = `## Styling Rules (SDK 52)
 
 ### General Rules
-- **Inline styles preferred** over StyleSheet.create unless reusing styles
-- **CSS and Tailwind NOT supported** - use inline styles only
-- Prefer flex gap over margin/padding
+- Use **StyleSheet.create** for all styles (more reliable in Expo Snack)
+- **CSS and Tailwind NOT supported** - use React Native styles only
+- Prefer flex gap over margin/padding where supported
 - Prefer padding over margin where possible
-- Add entering/exiting animations for state changes
 - ALWAYS use navigation stack title instead of custom text on page
 
 ### Safe Area Handling
 - ALWAYS account for safe area (top AND bottom)
 - Use Stack headers, tabs, or ScrollView with \`contentInsetAdjustmentBehavior="automatic"\`
-- When padding a ScrollView, use \`contentContainerStyle\` padding instead of ScrollView padding (reduces clipping)
+- When padding a ScrollView, use \`contentContainerStyle\` padding instead of ScrollView padding
 
-### Shadows (CRITICAL)
-Use CSS \`boxShadow\` style prop. NEVER use legacy React Native shadow or elevation styles:
+### Shadows
+Use React Native shadow styles (NOT CSS boxShadow - not supported in Expo Snack SDK 52):
 
 \`\`\`tsx
-// CORRECT - Modern CSS boxShadow
-<View style={{ boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)' }} />
-<View style={{ boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }} />
-<View style={{ boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }} />
-
-// Inset shadows supported
-<View style={{ boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.06)' }} />
-
-// WRONG - Never use these
-<View style={{ 
-  shadowColor: '#000',     // DEPRECATED
-  shadowOffset: {},        // DEPRECATED
-  shadowOpacity: 0.1,      // DEPRECATED
-  shadowRadius: 3,         // DEPRECATED
-  elevation: 5,            // DEPRECATED
+// CORRECT - React Native shadow styles
+<View style={{
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3, // Android shadow
+  backgroundColor: '#fff', // Required for shadow to show
 }} />
 \`\`\`
 
 ### Common Shadow Presets
 \`\`\`tsx
 const shadows = {
-  sm: '0 1px 2px rgba(0, 0, 0, 0.05)',
-  md: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1)',
-  lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1)',
-  xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+  sm: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  md: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  lg: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
 };
 \`\`\`
 
 ### Border Radius
-Use \`borderCurve: 'continuous'\` for Apple-style rounded corners:
-
 \`\`\`tsx
-// CORRECT - Smooth continuous corners
-<View style={{ 
-  borderRadius: 16,
-  borderCurve: 'continuous',  // Apple's squircle
-}} />
+// Standard rounded corners
+<View style={{ borderRadius: 16 }} />
 
-// Exception: Capsule shapes (pills)
-<View style={{ 
-  borderRadius: 9999,  // No borderCurve for perfect circles/capsules
-}} />
+// Pill/capsule shape
+<View style={{ borderRadius: 9999 }} />
 \`\`\``;
 
 export const LAYOUT_PATTERNS = `## Layout Patterns
@@ -76,6 +78,7 @@ export const LAYOUT_PATTERNS = `## Layout Patterns
     padding: 16,
     gap: 16,
   }}
+  style={{ backgroundColor: '#0a0a0a' }}
 >
   {/* Content */}
 </ScrollView>
@@ -97,41 +100,44 @@ export const LAYOUT_PATTERNS = `## Layout Patterns
 
 ### Card Pattern
 \`\`\`tsx
-<View
-  style={{
-    backgroundColor: PlatformColor('secondarySystemBackground'),
-    borderRadius: 12,
-    borderCurve: 'continuous',
-    padding: 16,
-    gap: 12,
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-  }}
->
-  <Text style={{ fontSize: 17, fontWeight: '600', color: PlatformColor('label') }}>
-    Title
-  </Text>
-  <Text style={{ fontSize: 15, color: PlatformColor('secondaryLabel') }}>
-    Description
-  </Text>
+<View style={styles.card}>
+  <Text style={styles.cardTitle}>Title</Text>
+  <Text style={styles.cardDescription}>Description</Text>
 </View>
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#1c1c1e',
+    borderRadius: 12,
+    padding: 16,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cardTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#fff',
+  },
+  cardDescription: {
+    fontSize: 15,
+    color: '#8e8e93',
+  },
+});
 \`\`\`
 
 ### Row Pattern
 \`\`\`tsx
-<View
-  style={{
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 16,
-  }}
->
-  <SymbolView name="star.fill" tintColor={PlatformColor('systemYellow')} size={24} />
+<View style={styles.row}>
+  <Ionicons name="star" size={24} color="#FFD60A" />
   <View style={{ flex: 1 }}>
-    <Text style={{ fontSize: 17, color: PlatformColor('label') }}>Title</Text>
-    <Text style={{ fontSize: 15, color: PlatformColor('secondaryLabel') }}>Subtitle</Text>
+    <Text style={styles.rowTitle}>Title</Text>
+    <Text style={styles.rowSubtitle}>Subtitle</Text>
   </View>
-  <SymbolView name="chevron.right" tintColor={PlatformColor('tertiaryLabel')} size={16} />
+  <Ionicons name="chevron-forward" size={20} color="#48484a" />
 </View>
 \`\`\``;
 
@@ -139,52 +145,53 @@ export const TEXT_STYLING = `## Text Styling
 
 ### Text Rules
 - Add \`selectable\` prop to every <Text/> displaying important data or error messages
-- Use \`fontVariant: 'tabular-nums'\` for counters and numbers (alignment)
 - Format large numbers: 1.4M, 38k instead of 1400000
 
 ### Typography Scale
 \`\`\`tsx
 const typography = {
-  largeTitle: { fontSize: 34, fontWeight: '700' },
-  title1: { fontSize: 28, fontWeight: '700' },
-  title2: { fontSize: 22, fontWeight: '700' },
-  title3: { fontSize: 20, fontWeight: '600' },
-  headline: { fontSize: 17, fontWeight: '600' },
-  body: { fontSize: 17, fontWeight: '400' },
-  callout: { fontSize: 16, fontWeight: '400' },
-  subhead: { fontSize: 15, fontWeight: '400' },
-  footnote: { fontSize: 13, fontWeight: '400' },
-  caption1: { fontSize: 12, fontWeight: '400' },
-  caption2: { fontSize: 11, fontWeight: '400' },
+  largeTitle: { fontSize: 34, fontWeight: '700' as const },
+  title1: { fontSize: 28, fontWeight: '700' as const },
+  title2: { fontSize: 22, fontWeight: '700' as const },
+  title3: { fontSize: 20, fontWeight: '600' as const },
+  headline: { fontSize: 17, fontWeight: '600' as const },
+  body: { fontSize: 17, fontWeight: '400' as const },
+  callout: { fontSize: 16, fontWeight: '400' as const },
+  subhead: { fontSize: 15, fontWeight: '400' as const },
+  footnote: { fontSize: 13, fontWeight: '400' as const },
+  caption1: { fontSize: 12, fontWeight: '400' as const },
+  caption2: { fontSize: 11, fontWeight: '400' as const },
 };
 \`\`\`
 
-### Platform Colors
-Always use PlatformColor for automatic dark mode support:
+### Color System (Dark Theme)
+Use a consistent color palette for dark theme:
 \`\`\`tsx
-import { PlatformColor } from 'react-native';
-
-// Text colors
-PlatformColor('label')           // Primary text
-PlatformColor('secondaryLabel')  // Secondary text
-PlatformColor('tertiaryLabel')   // Tertiary text
-PlatformColor('quaternaryLabel') // Quaternary text
-
-// Background colors
-PlatformColor('systemBackground')           // Primary background
-PlatformColor('secondarySystemBackground')  // Cards, grouped content
-PlatformColor('tertiarySystemBackground')   // Nested content
-
-// Accent colors
-PlatformColor('systemBlue')
-PlatformColor('systemGreen')
-PlatformColor('systemRed')
-PlatformColor('systemYellow')
-PlatformColor('systemOrange')
-PlatformColor('systemPurple')
-PlatformColor('systemPink')
-PlatformColor('systemTeal')
-PlatformColor('systemIndigo')
+const colors = {
+  // Backgrounds
+  background: '#0a0a0a',
+  surface: '#1c1c1e',
+  surfaceSecondary: '#2c2c2e',
+  
+  // Text
+  textPrimary: '#ffffff',
+  textSecondary: '#8e8e93',
+  textTertiary: '#48484a',
+  
+  // Accent
+  blue: '#007AFF',
+  green: '#30D158',
+  red: '#FF3B30',
+  yellow: '#FFD60A',
+  orange: '#FF9500',
+  purple: '#BF5AF2',
+  pink: '#FF2D55',
+  teal: '#64D2FF',
+  
+  // Borders
+  border: '#38383a',
+  separator: '#2c2c2e',
+};
 \`\`\``;
 
 export const RESPONSIVE_DESIGN = `## Responsive Design
@@ -240,10 +247,10 @@ function Screen() {
 
 ### Keyboard Avoiding
 \`\`\`tsx
-import { KeyboardAvoidingView } from 'react-native';
+import { KeyboardAvoidingView, Platform } from 'react-native';
 
 <KeyboardAvoidingView
-  behavior={process.env.EXPO_OS === 'ios' ? 'padding' : 'height'}
+  behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
   style={{ flex: 1 }}
 >
   {/* Form content */}
@@ -278,18 +285,21 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 </Animated.View>
 \`\`\`
 
-### Common Animation Presets
+### Simple Animated API (no reanimated needed)
 \`\`\`tsx
-// Fade
-FadeIn, FadeOut, FadeInUp, FadeInDown, FadeOutUp, FadeOutDown
+import { Animated } from 'react-native';
 
-// Slide
-SlideInRight, SlideInLeft, SlideOutRight, SlideOutLeft
-SlideInUp, SlideInDown, SlideOutUp, SlideOutDown
+const opacity = useRef(new Animated.Value(0)).current;
 
-// Zoom
-ZoomIn, ZoomOut, ZoomInUp, ZoomInDown
+useEffect(() => {
+  Animated.timing(opacity, {
+    toValue: 1,
+    duration: 300,
+    useNativeDriver: true,
+  }).start();
+}, []);
 
-// Bounce
-BounceIn, BounceOut, BounceInUp, BounceInDown
+<Animated.View style={{ opacity }}>
+  <Content />
+</Animated.View>
 \`\`\``;

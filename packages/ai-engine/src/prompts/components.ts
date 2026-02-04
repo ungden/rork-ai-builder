@@ -1,107 +1,89 @@
 /**
- * Modern Expo Component Patterns
- * SF Symbols, expo-image, expo-audio/video, Glass Effects, Native Controls
+ * Expo Component Patterns (SDK 52)
+ * Ionicons, expo-image, expo-av, BlurView, Native Controls
  */
 
-export const SF_SYMBOLS = `## SF Symbols (expo-symbols)
+export const SF_SYMBOLS = `## Icons (@expo/vector-icons - Ionicons)
 
-Use SF Symbols for native iOS feel. NEVER use FontAwesome or Ionicons.
+Use Ionicons from @expo/vector-icons for app icons. This is the standard icon library for Expo SDK 52.
 
 ### Basic Usage
 \`\`\`tsx
-import { SymbolView } from 'expo-symbols';
-import { PlatformColor } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-<SymbolView
-  name="square.and.arrow.down"
-  tintColor={PlatformColor('label')}
-  resizeMode="scaleAspectFit"
-  style={{ width: 24, height: 24 }}
-/>
+<Ionicons name="home" size={24} color="#fff" />
+<Ionicons name="home-outline" size={24} color="#8e8e93" />
 \`\`\`
 
-### SymbolView Props
+### Icon in Pressable
 \`\`\`tsx
-<SymbolView
-  name="star.fill"                    // SF Symbol name (required)
-  tintColor={PlatformColor('label')}  // Icon color
-  size={24}                           // Shorthand for width/height
-  resizeMode="scaleAspectFit"         // How to scale
-  weight="regular"                    // thin|ultraLight|light|regular|medium|semibold|bold|heavy|black
-  scale="medium"                      // small|medium|large
-/>
+<Pressable onPress={handlePress} style={{ padding: 8 }}>
+  <Ionicons name="heart" size={24} color="#FF3B30" />
+</Pressable>
 \`\`\`
 
-### Common SF Symbol Names
+### Common Ionicons Names
 
 **Navigation & Actions:**
-- \`house.fill\` - home
-- \`gear\` - settings
-- \`magnifyingglass\` - search
-- \`plus\` - add
-- \`xmark\` - close
-- \`chevron.left\` / \`chevron.right\` - back/forward
-- \`arrow.left\` / \`arrow.right\` - back/forward arrows
+- \`home\` / \`home-outline\`
+- \`settings\` / \`settings-outline\`
+- \`search\` / \`search-outline\`
+- \`add\` / \`add-circle\` / \`add-circle-outline\`
+- \`close\` / \`close-circle\`
+- \`chevron-back\` / \`chevron-forward\`
+- \`arrow-back\` / \`arrow-forward\`
+- \`menu\` / \`ellipsis-horizontal\` / \`ellipsis-vertical\`
 
 **Media:**
-- \`play.fill\` / \`pause.fill\` - play/pause
-- \`speaker.wave.2.fill\` / \`speaker.slash.fill\` - volume/mute
-- \`camera\` / \`camera.fill\` - camera
-- \`photo\` - gallery
-- \`bolt\` / \`bolt.slash\` - flash on/off
-- \`arrow.triangle.2.circlepath\` - flip camera
+- \`play\` / \`pause\` / \`stop\`
+- \`volume-high\` / \`volume-mute\`
+- \`camera\` / \`camera-outline\`
+- \`image\` / \`image-outline\`
+- \`mic\` / \`mic-outline\`
+- \`musical-notes\`
 
 **Social:**
-- \`heart\` / \`heart.fill\` - like
-- \`star\` / \`star.fill\` - favorite
-- \`hand.thumbsup\` / \`hand.thumbsdown\` - thumbs
-- \`person\` / \`person.fill\` - profile
-- \`person.2\` / \`person.2.fill\` - people
+- \`heart\` / \`heart-outline\`
+- \`star\` / \`star-outline\`
+- \`thumbs-up\` / \`thumbs-down\`
+- \`person\` / \`person-outline\`
+- \`people\` / \`people-outline\`
+- \`chatbubble\` / \`chatbubble-outline\`
 
 **Content Actions:**
-- \`square.and.arrow.up\` - share
-- \`square.and.arrow.down\` - download
-- \`doc.on.doc\` - copy
-- \`trash\` - delete
-- \`pencil\` - edit
-- \`bookmark\` / \`bookmark.fill\` - bookmark
+- \`share\` / \`share-outline\`
+- \`download\` / \`download-outline\`
+- \`copy\` / \`copy-outline\`
+- \`trash\` / \`trash-outline\`
+- \`pencil\` / \`create-outline\`
+- \`bookmark\` / \`bookmark-outline\`
 
 **Status:**
-- \`checkmark\` / \`checkmark.circle.fill\` - success
-- \`xmark.circle.fill\` - error
-- \`exclamationmark.triangle\` - warning
-- \`info.circle\` - info
-- \`bell\` / \`bell.fill\` - notification
+- \`checkmark\` / \`checkmark-circle\`
+- \`close-circle\` / \`alert-circle\`
+- \`warning\` / \`information-circle\`
+- \`notifications\` / \`notifications-outline\`
+- \`eye\` / \`eye-off\`
 
 **Misc:**
-- \`ellipsis\` - more options
-- \`line.3.horizontal\` - menu
-- \`slider.horizontal.3\` - filters
-- \`arrow.clockwise\` - refresh
-- \`location\` / \`location.fill\` - location
-- \`mappin\` - pin
-- \`clock\` - time
-- \`calendar\` - calendar
-- \`nosign\` - block
+- \`refresh\` / \`reload\`
+- \`location\` / \`location-outline\`
+- \`map\` / \`map-outline\`
+- \`time\` / \`time-outline\`
+- \`calendar\` / \`calendar-outline\`
+- \`cart\` / \`cart-outline\`
+- \`globe\` / \`globe-outline\`
+- \`filter\` / \`options\`
+- \`flash\` / \`flash-off\`
+- \`moon\` / \`sunny\`
+- \`log-out\` / \`log-in\`
 
-### Animated Symbols
+### Other Icon Families Available
 \`\`\`tsx
-<SymbolView
-  name="checkmark.circle"
-  animationSpec={{
-    effect: { type: 'bounce', direction: 'up' },
-  }}
-/>
-
-// Animation types: bounce, pulse, variableColor, scale
-\`\`\`
-
-### Multicolor Symbols
-\`\`\`tsx
-<SymbolView
-  name="cloud.sun.rain.fill"
-  type="multicolor"
-/>
+import { MaterialIcons } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { Feather } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 \`\`\``;
 
 export const EXPO_IMAGE = `## expo-image
@@ -139,17 +121,6 @@ import { Image } from 'expo-image';
 />
 \`\`\`
 
-### Blurhash Placeholder
-\`\`\`tsx
-<Image
-  source={{ uri: imageUrl }}
-  placeholder="LKO2?U%2Tw=w]~RBVZRi};RPxuwH"
-  contentFit="cover"
-  transition={300}
-  style={{ width: '100%', height: 200 }}
-/>
-\`\`\`
-
 ### Avatar Pattern
 \`\`\`tsx
 <Image
@@ -163,75 +134,65 @@ import { Image } from 'expo-image';
 />
 \`\`\``;
 
-export const MEDIA_COMPONENTS = `## Media Components
+export const MEDIA_COMPONENTS = `## Media Components (expo-av)
 
-### Audio Playback (expo-audio)
+### Audio Playback
 \`\`\`tsx
-import { useAudioPlayer } from 'expo-audio';
+import { Audio } from 'expo-av';
+import { useState, useEffect } from 'react';
 
-function AudioPlayer() {
-  const player = useAudioPlayer({ uri: 'https://example.com/audio.mp3' });
+function AudioPlayer({ uri }: { uri: string }) {
+  const [sound, setSound] = useState<Audio.Sound | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  return (
-    <View style={{ flexDirection: 'row', gap: 16 }}>
-      <Pressable onPress={() => player.play()}>
-        <SymbolView name="play.fill" size={32} tintColor={PlatformColor('label')} />
-      </Pressable>
-      <Pressable onPress={() => player.pause()}>
-        <SymbolView name="pause.fill" size={32} tintColor={PlatformColor('label')} />
-      </Pressable>
-    </View>
-  );
-}
-\`\`\`
-
-### Audio Recording
-\`\`\`tsx
-import { useAudioRecorder, AudioModule, RecordingPresets, useAudioRecorderState } from 'expo-audio';
-
-function Recorder() {
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const state = useAudioRecorderState(recorder);
-
-  const startRecording = async () => {
-    const { granted } = await AudioModule.requestRecordingPermissionsAsync();
-    if (granted) {
-      await recorder.prepareToRecordAsync();
-      recorder.record();
+  const playSound = async () => {
+    if (sound) {
+      await sound.playAsync();
+      setIsPlaying(true);
+    } else {
+      const { sound: newSound } = await Audio.Sound.createAsync({ uri });
+      setSound(newSound);
+      newSound.setOnPlaybackStatusUpdate((status) => {
+        if (status.isLoaded) {
+          setIsPlaying(status.isPlaying);
+        }
+      });
+      await newSound.playAsync();
+      setIsPlaying(true);
     }
   };
 
+  const pauseSound = async () => {
+    if (sound) {
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    }
+  };
+
+  useEffect(() => {
+    return () => { sound?.unloadAsync(); };
+  }, [sound]);
+
   return (
-    <Pressable onPress={state.isRecording ? () => recorder.stop() : startRecording}>
-      <SymbolView
-        name={state.isRecording ? 'stop.fill' : 'mic.fill'}
-        size={48}
-        tintColor={state.isRecording ? PlatformColor('systemRed') : PlatformColor('label')}
-      />
+    <Pressable onPress={isPlaying ? pauseSound : playSound}>
+      <Ionicons name={isPlaying ? 'pause' : 'play'} size={32} color="#fff" />
     </Pressable>
   );
 }
 \`\`\`
 
-### Video Playback (expo-video)
+### Video Playback
 \`\`\`tsx
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useEvent } from 'expo';
+import { Video, ResizeMode } from 'expo-av';
 
-function VideoPlayer({ source }: { source: string }) {
-  const player = useVideoPlayer(source, player => {
-    player.loop = true;
-    player.play();
-  });
-
-  const { isPlaying } = useEvent(player, 'playingChange', { isPlaying: player.playing });
-
+function VideoPlayer({ uri }: { uri: string }) {
   return (
-    <VideoView
-      player={player}
+    <Video
+      source={{ uri }}
       style={{ width: '100%', aspectRatio: 16 / 9 }}
-      allowsPictureInPicture
-      nativeControls
+      useNativeControls
+      resizeMode={ResizeMode.CONTAIN}
+      isLooping
     />
   );
 }
@@ -240,7 +201,6 @@ function VideoPlayer({ source }: { source: string }) {
 ### Camera
 \`\`\`tsx
 import { CameraView, useCameraPermissions } from 'expo-camera';
-import { GlassView } from 'expo-glass-effect';
 
 function Camera({ onCapture }: { onCapture: (uri: string) => void }) {
   const [permission, requestPermission] = useCameraPermissions();
@@ -250,96 +210,73 @@ function Camera({ onCapture }: { onCapture: (uri: string) => void }) {
   if (!permission?.granted) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Camera access required</Text>
+        <Text style={{ color: '#fff' }}>Camera access required</Text>
         <Pressable onPress={requestPermission}>
-          <Text style={{ color: PlatformColor('systemBlue') }}>Grant Permission</Text>
+          <Text style={{ color: '#007AFF', marginTop: 12 }}>Grant Permission</Text>
         </Pressable>
       </View>
     );
   }
 
-  const takePicture = async () => {
-    const photo = await cameraRef.current?.takePictureAsync();
-    if (photo) onCapture(photo.uri);
-  };
-
   return (
     <View style={{ flex: 1 }}>
-      <CameraView ref={cameraRef} style={{ flex: 1 }} facing={facing} mirror />
+      <CameraView ref={cameraRef} style={{ flex: 1 }} facing={facing} />
       <View style={{ position: 'absolute', bottom: 40, left: 0, right: 0, alignItems: 'center' }}>
-        <GlassView isInteractive style={{ borderRadius: 99, padding: 8 }}>
-          <Pressable onPress={takePicture} style={{ width: 64, height: 64, borderRadius: 32, backgroundColor: 'white' }} />
-        </GlassView>
+        <Pressable
+          onPress={async () => {
+            const photo = await cameraRef.current?.takePictureAsync();
+            if (photo) onCapture(photo.uri);
+          }}
+          style={{
+            width: 72, height: 72, borderRadius: 36,
+            backgroundColor: '#fff', borderWidth: 4, borderColor: '#ccc',
+          }}
+        />
       </View>
     </View>
   );
 }
 \`\`\``;
 
-export const GLASS_AND_BLUR = `## Glass & Blur Effects
+export const GLASS_AND_BLUR = `## Blur Effects
 
 ### BlurView (expo-blur)
 \`\`\`tsx
 import { BlurView } from 'expo-blur';
 
-<BlurView tint="systemMaterial" intensity={100}>
-  <Text>Blurred content</Text>
+<BlurView tint="dark" intensity={80} style={styles.blurContainer}>
+  <Text style={{ color: '#fff' }}>Blurred content</Text>
 </BlurView>
 \`\`\`
 
 #### Tint Options
-- System materials (adapt to dark mode): \`systemMaterial\`, \`systemThinMaterial\`, \`systemUltraThinMaterial\`, \`systemThickMaterial\`
 - Basic: \`light\`, \`dark\`, \`default\`
+- System materials (iOS): \`systemMaterial\`, \`systemThinMaterial\`, \`systemUltraThinMaterial\`, \`systemThickMaterial\`
 - Extra: \`extraLight\`, \`prominent\`
 
 #### Rounded BlurView
 \`\`\`tsx
 <BlurView
-  tint="systemMaterial"
+  tint="dark"
   intensity={80}
   style={{
     borderRadius: 16,
-    overflow: 'hidden',  // REQUIRED for rounded corners
+    overflow: 'hidden',  // REQUIRED for rounded corners on BlurView
     padding: 16,
   }}
 >
-  <Text>Card content</Text>
+  <Text style={{ color: '#fff' }}>Card content</Text>
 </BlurView>
 \`\`\`
 
-### GlassView (expo-glass-effect) - iOS 26+
+### Overlay with Blur
 \`\`\`tsx
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-
-<GlassView style={{ borderRadius: 16, padding: 16 }}>
-  <Text>Liquid glass content</Text>
-</GlassView>
-\`\`\`
-
-#### Interactive Glass Button
-\`\`\`tsx
-<GlassView isInteractive style={{ borderRadius: 50 }}>
-  <Pressable onPress={handlePress} style={{ padding: 12 }}>
-    <SymbolView name="plus" tintColor={PlatformColor('label')} size={24} />
-  </Pressable>
-</GlassView>
-\`\`\`
-
-#### Fallback Pattern
-\`\`\`tsx
-import { GlassView, isLiquidGlassAvailable } from 'expo-glass-effect';
-import { BlurView } from 'expo-blur';
-
-function AdaptiveGlass({ children, style }) {
-  if (isLiquidGlassAvailable()) {
-    return <GlassView style={style}>{children}</GlassView>;
-  }
-  return (
-    <BlurView tint="systemMaterial" intensity={80} style={style}>
-      {children}
-    </BlurView>
-  );
-}
+<View style={StyleSheet.absoluteFillObject}>
+  <BlurView tint="dark" intensity={60} style={StyleSheet.absoluteFillObject} />
+  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+    <Text style={{ color: '#fff', fontSize: 24 }}>Modal Content</Text>
+  </View>
+</View>
 \`\`\``;
 
 export const NATIVE_CONTROLS = `## Native Controls
@@ -350,48 +287,11 @@ import { Switch } from 'react-native';
 
 const [enabled, setEnabled] = useState(false);
 
-<Switch value={enabled} onValueChange={setEnabled} />
-\`\`\`
-
-### Segmented Control
-\`\`\`tsx
-import SegmentedControl from '@react-native-segmented-control/segmented-control';
-
-const [index, setIndex] = useState(0);
-
-<SegmentedControl
-  values={['All', 'Active', 'Done']}
-  selectedIndex={index}
-  onChange={({ nativeEvent }) => setIndex(nativeEvent.selectedSegmentIndex)}
-/>
-\`\`\`
-
-### Slider
-\`\`\`tsx
-import Slider from '@react-native-community/slider';
-
-const [value, setValue] = useState(0.5);
-
-<Slider
-  value={value}
-  onValueChange={setValue}
-  minimumValue={0}
-  maximumValue={1}
-/>
-\`\`\`
-
-### DateTimePicker
-\`\`\`tsx
-import DateTimePicker from '@react-native-community/datetimepicker';
-
-const [date, setDate] = useState(new Date());
-
-<DateTimePicker
-  value={date}
-  onChange={(event, selectedDate) => {
-    if (selectedDate) setDate(selectedDate);
-  }}
-  mode="datetime"
+<Switch
+  value={enabled}
+  onValueChange={setEnabled}
+  trackColor={{ false: '#3a3a3c', true: '#30D158' }}
+  thumbColor="#fff"
 />
 \`\`\`
 
@@ -399,14 +299,13 @@ const [date, setDate] = useState(new Date());
 \`\`\`tsx
 <TextInput
   placeholder="Enter text..."
-  placeholderTextColor={PlatformColor('placeholderText')}
+  placeholderTextColor="#8e8e93"
   style={{
     padding: 12,
     fontSize: 17,
     borderRadius: 8,
-    borderCurve: 'continuous',
-    backgroundColor: PlatformColor('tertiarySystemBackground'),
-    color: PlatformColor('label'),
+    backgroundColor: '#2c2c2e',
+    color: '#fff',
   }}
 />
 \`\`\`
@@ -427,6 +326,27 @@ const [date, setDate] = useState(new Date());
 
 // Search
 <TextInput returnKeyType="search" enablesReturnKeyAutomatically />
+\`\`\`
+
+### Settings Row Pattern
+\`\`\`tsx
+function SettingsRow({ icon, title, value, onToggle }: {
+  icon: string; title: string; value: boolean; onToggle: (v: boolean) => void;
+}) {
+  return (
+    <View style={styles.settingsRow}>
+      <View style={styles.settingsRowLeft}>
+        <Ionicons name={icon as any} size={22} color="#8e8e93" />
+        <Text style={styles.settingsRowTitle}>{title}</Text>
+      </View>
+      <Switch
+        value={value}
+        onValueChange={onToggle}
+        trackColor={{ false: '#3a3a3c', true: '#30D158' }}
+      />
+    </View>
+  );
+}
 \`\`\``;
 
 export const HAPTICS = `## Haptics
@@ -435,6 +355,7 @@ Use expo-haptics conditionally on iOS for delightful experiences:
 
 \`\`\`tsx
 import * as Haptics from 'expo-haptics';
+import { Platform } from 'react-native';
 
 // Selection feedback (light)
 await Haptics.selectionAsync();
@@ -453,7 +374,7 @@ await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
 ### Conditional Haptics
 \`\`\`tsx
 const handlePress = async () => {
-  if (process.env.EXPO_OS === 'ios') {
+  if (Platform.OS === 'ios') {
     await Haptics.selectionAsync();
   }
   // ... rest of handler
@@ -461,4 +382,4 @@ const handlePress = async () => {
 \`\`\`
 
 ### Don't Double Haptic
-Native controls like Switch and DateTimePicker have built-in haptics - don't add extra!`;
+Native controls like Switch have built-in haptics - don't add extra!`;

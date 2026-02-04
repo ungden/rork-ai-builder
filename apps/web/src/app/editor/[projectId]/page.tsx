@@ -27,7 +27,7 @@ export default function EditorPage() {
   const [expoURL, setExpoURL] = useState<string | undefined>(undefined);
   const [connectedDevices, setConnectedDevices] = useState(0);
   
-  const { setProject, files } = useProjectStore();
+  const { setProject, files, setActiveFile } = useProjectStore();
   const { showToast } = useToast();
 
   // Keyboard shortcut for command palette (Cmd+K / Ctrl+K)
@@ -145,6 +145,14 @@ export default function EditorPage() {
     loadProject();
   }, [projectId, router, setProject]);
 
+  // Handle "View Code" from chat panel - switch to code view and open file
+  const handleViewCode = useCallback((filePath?: string) => {
+    setViewMode('code');
+    if (filePath) {
+      setActiveFile(filePath);
+    }
+  }, [setActiveFile]);
+
   // Callback to receive Expo URL from PreviewPanel
   const handleExpoURLChange = useCallback((url: string | undefined) => {
     setExpoURL(url);
@@ -197,7 +205,7 @@ export default function EditorPage() {
       <div className="flex-1 flex overflow-hidden">
         {/* Left - Chat Panel (~35%) */}
         <div className="w-[420px] border-r border-border flex-shrink-0">
-          <ChatPanel projectId={projectId} />
+          <ChatPanel projectId={projectId} onViewCode={handleViewCode} />
         </div>
         
         {/* Center - Preview OR Code (toggle, ~40%) */}

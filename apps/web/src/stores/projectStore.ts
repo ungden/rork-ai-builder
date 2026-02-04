@@ -53,7 +53,7 @@ const initialState = {
   activeFile: null,
   messages: [],
   isGenerating: false,
-  selectedModel: 'claude' as const,
+  selectedModel: 'gemini' as const,
   streamingContent: '',
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Loader2, Mic, ChevronDown, ChevronRight, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode, RotateCcw, Code, Share2 } from 'lucide-react';
+import { Send, Loader2, Mic, ChevronDown, ChevronRight, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode, RotateCcw, Code } from 'lucide-react';
 import { useProjectStore } from '@/stores/projectStore';
 import { useAgentStore } from '@/stores/agentStore';
 import { AgentStatus } from './AgentStatus';
@@ -18,6 +18,7 @@ function stripFileBlocks(text: string): string {
 
 interface ChatPanelProps {
   projectId: string;
+  onViewCode?: (filePath?: string) => void;
 }
 
 interface ImageAttachment {
@@ -28,7 +29,7 @@ interface ImageAttachment {
   name: string;
 }
 
-export function ChatPanel({ projectId }: ChatPanelProps) {
+export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const [attachedImages, setAttachedImages] = useState<ImageAttachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -498,30 +499,31 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
                         
                         {/* File entries */}
                         {msg.filesChanged.map(filePath => (
-                          <div 
+                          <button 
                             key={filePath}
-                            className="px-3 py-1.5 flex items-center gap-2 text-xs border-b border-[#27272a] last:border-b-0 hover:bg-[#27272a]/50"
+                            onClick={() => onViewCode?.(filePath)}
+                            className="w-full px-3 py-1.5 flex items-center gap-2 text-xs border-b border-[#27272a] last:border-b-0 hover:bg-[#27272a]/50 text-left"
                           >
                             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
                             <span className="text-gray-400 truncate flex-1">
                               Edited {filePath.startsWith('/') ? filePath.slice(1) : filePath}
                             </span>
-                          </div>
+                            <Code size={10} className="text-gray-600 flex-shrink-0" />
+                          </button>
                         ))}
                         
-                        {/* Action buttons - Restore / Code / Share */}
+                        {/* Action buttons - Code / Restore */}
                         <div className="px-3 py-2 flex items-center gap-3 border-t border-[#27272a]">
-                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
-                            <RotateCcw size={11} />
-                            Restore
-                          </button>
-                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
+                          <button 
+                            onClick={() => onViewCode?.(msg.filesChanged?.[0])}
+                            className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors"
+                          >
                             <Code size={11} />
                             Code
                           </button>
-                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
-                            <Share2 size={11} />
-                            Share
+                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors opacity-50 cursor-not-allowed">
+                            <RotateCcw size={11} />
+                            Restore
                           </button>
                         </div>
                       </div>
