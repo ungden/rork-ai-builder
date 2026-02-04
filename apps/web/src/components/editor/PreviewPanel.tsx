@@ -131,11 +131,24 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
     const transformed = transformFilesToSnack(files);
     const hasAppJs = Object.keys(transformed).some(p => p === 'App.js' || p === 'App.tsx');
     const hasExpoRouter = Object.keys(transformed).some(p =>
-      p.startsWith('app/') && (p.endsWith('index.tsx') || p.endsWith('index.js'))
+      p.startsWith('app/') && (p.endsWith('.tsx') || p.endsWith('.js'))
     );
-    if (!hasAppJs && !hasExpoRouter) {
+
+    if (hasExpoRouter && !hasAppJs) {
+      // Expo Router projects need App.js as the entry point for Snack web player.
+      // The web player doesn't read package.json "main" — it always loads App.js.
+      // This re-exports from expo-router/entry which bootstraps the file-based router.
+      transformed['App.js'] = {
+        type: 'CODE',
+        contents: `// @info This file is the entry point for the Snack web player.
+// It re-exports expo-router/entry which bootstraps file-based routing.
+import 'expo-router/entry';
+`,
+      };
+    } else if (!hasAppJs && !hasExpoRouter) {
       transformed['App.js'] = { type: 'CODE', contents: DEFAULT_APP };
     }
+
     return transformed;
   }, [files]);
 
