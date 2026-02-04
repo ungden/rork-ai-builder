@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 import { createAIProvider, parseGeneratedFiles } from '@ai-engine/core';
 
-export const maxDuration = 60; // Allow up to 60 seconds for generation
+export const maxDuration = 300; // 5 min for generation
 
 export async function POST(request: NextRequest) {
   try {

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { NextRequest } from 'next/server';
 import { createAIProvider, enhancePromptWithContext } from '@ai-engine/core';
 
-export const maxDuration = 60;
+export const maxDuration = 300; // 5 min - Gemini needs time with large system prompts
 
 interface ImageAttachment {
   type: 'base64';

@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import { createAIProvider } from '@ai-engine/core';
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 export async function POST(request: NextRequest) {
   const encoder = new TextEncoder();
