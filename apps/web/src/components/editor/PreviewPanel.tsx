@@ -251,7 +251,7 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
 
   if (error) {
     return (
-      <div className="h-full w-full flex items-center justify-center bg-[#050505]">
+      <div className="h-full w-full flex items-center justify-center bg-[#111]">
         <div className="text-center p-4">
           <AlertCircle className="w-10 h-10 text-red-400 mx-auto mb-3" />
           <p className="text-red-400 text-sm mb-2">Preview Error</p>
@@ -268,34 +268,33 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
   }
 
   return (
-    <div className="h-full w-full flex flex-col bg-[#050505]">
-      {/* Controls */}
+    <div className="h-full w-full flex flex-col bg-[#111]">
+      {/* Controls - floating badge */}
       <div className="absolute top-4 right-4 z-20">
-        <div className="flex items-center bg-[#0a0a0a] border border-[#27272a] rounded-lg shadow-xl p-1 gap-1">
-          <div className="flex items-center gap-2 px-2 py-1 border-r border-[#27272a] mr-1">
-            {isGenerating ? (
-              <>
-                <Loader2 size={10} className="animate-spin text-blue-400" />
-                <span className="text-blue-400 font-medium text-[11px]">Building</span>
-              </>
-            ) : isLoading ? (
-              <>
-                <Loader2 size={10} className="animate-spin text-yellow-400" />
-                <span className="text-yellow-400 font-medium text-[11px]">Loading</span>
-              </>
-            ) : (
-              <>
-                <div className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
-                </div>
-                <span className="text-gray-200 font-medium text-[11px]">Live</span>
-              </>
-            )}
-          </div>
+        <div className="flex items-center bg-[#0a0a0a]/90 backdrop-blur-sm border border-[#27272a] rounded-full shadow-lg px-2 py-1 gap-1.5">
+          {isGenerating ? (
+            <>
+              <Loader2 size={10} className="animate-spin text-blue-400" />
+              <span className="text-blue-400 font-medium text-[11px]">Building</span>
+            </>
+          ) : isLoading ? (
+            <>
+              <Loader2 size={10} className="animate-spin text-yellow-400" />
+              <span className="text-yellow-400 font-medium text-[11px]">Loading</span>
+            </>
+          ) : (
+            <>
+              <div className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+              </div>
+              <span className="text-green-400 font-medium text-[11px]">Live</span>
+            </>
+          )}
+          <div className="w-px h-3 bg-[#27272a]" />
           <button
             onClick={handleRefresh}
-            className="p-1.5 text-gray-400 hover:text-white hover:bg-[#27272a] rounded"
+            className="p-0.5 text-gray-400 hover:text-white transition-colors"
             title="Refresh preview"
           >
             <RefreshCw size={12} />
@@ -305,10 +304,10 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
 
       {/* Preview Area */}
       <div className="flex-1 flex items-center justify-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:24px_24px]" />
 
         {/* Phone Frame */}
-        <div className="relative w-[375px] h-[812px] bg-black rounded-[50px] border-[6px] border-[#18181b] shadow-[0_0_100px_-30px_rgba(0,0,0,0.7)] overflow-hidden ring-1 ring-white/5 z-10 scale-[0.72] origin-center">
+        <div className="relative w-[375px] h-[812px] bg-black rounded-[50px] border-[6px] border-[#1a1a1a] shadow-[0_0_120px_-20px_rgba(0,0,0,0.8),0_25px_60px_-12px_rgba(0,0,0,0.5)] overflow-hidden ring-1 ring-white/5 z-10 scale-[0.72] origin-center">
           <div className="absolute top-[11px] left-1/2 transform -translate-x-1/2 w-[100px] h-[30px] bg-black rounded-[20px] z-50" />
           <div className="absolute top-0 w-full h-12 z-40 flex justify-between items-end px-6 pb-2">
             <div className="text-white text-[13px] font-semibold pl-2">9:41</div>

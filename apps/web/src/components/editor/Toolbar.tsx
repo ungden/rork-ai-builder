@@ -4,21 +4,19 @@ import { useState } from 'react';
 import { 
   Code, 
   Eye, 
-  ChevronRight, 
   Download, 
   Share2, 
-  Box,
   Lock,
   ChevronDown,
-  Sparkles,
   Save,
-  Command,
   Github,
   Smartphone,
   Loader2,
   ExternalLink,
   Check,
   X,
+  ChevronLeft,
+  MoreHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useProjectStore } from '@/stores/projectStore';
@@ -40,6 +38,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
   
   const [showGitHubModal, setShowGitHubModal] = useState(false);
   const [showBuildModal, setShowBuildModal] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [isGitHubSyncing, setIsGitHubSyncing] = useState(false);
   const [isBuildTriggering, setIsBuildTriggering] = useState(false);
   const [gitHubResult, setGitHubResult] = useState<{ repoUrl?: string; commitUrl?: string } | null>(null);
@@ -148,128 +147,122 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
     <>
       <div className="h-12 border-b border-[#27272a] flex items-center justify-between px-3 bg-[#0a0a0a]">
         {/* Left Side */}
-        <div className="flex items-center gap-3">
-          {/* Back to Dashboard */}
+        <div className="flex items-center gap-2">
+          {/* Back arrow */}
           <Link 
-            href="/"
-            className="flex items-center gap-2 hover:bg-[#27272a] p-1.5 rounded cursor-pointer transition-colors"
+            href="/dashboard"
+            className="p-1.5 hover:bg-[#27272a] rounded-md text-gray-400 hover:text-white transition-colors"
           >
-            <ChevronRight size={16} className="text-gray-500 rotate-180" />
+            <ChevronLeft size={18} />
           </Link>
           
-          {/* Project Name */}
-          <div className="flex items-center gap-2 hover:bg-[#27272a] p-1.5 rounded cursor-pointer transition-colors max-w-[200px]">
-            <span className="font-semibold text-gray-200 truncate text-sm">
+          {/* Project Name + Lock + Dropdown */}
+          <button className="flex items-center gap-1.5 hover:bg-[#27272a] px-2 py-1.5 rounded-md transition-colors max-w-[200px]">
+            <span className="font-semibold text-white truncate text-sm">
               {projectName || 'Untitled Project'}
             </span>
-            <Lock size={12} className="text-gray-500 flex-shrink-0" />
-            <ChevronDown size={14} className="text-gray-500 flex-shrink-0" />
-          </div>
+            <Lock size={11} className="text-gray-500 flex-shrink-0" />
+            <ChevronDown size={12} className="text-gray-500 flex-shrink-0" />
+          </button>
           
-          <div className="h-4 w-[1px] bg-[#27272a]" />
+          <div className="h-5 w-px bg-[#27272a]" />
           
-          {/* View Toggle - Code / Preview */}
-          <div className="flex items-center bg-[#18181b] rounded-lg border border-[#27272a] p-0.5">
+          {/* Code / Preview pill toggle -- giống rork.app */}
+          <div className="flex items-center bg-[#18181b] rounded-lg p-0.5 border border-[#27272a]">
             <button 
               onClick={() => onViewModeChange?.('code')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                 viewMode === 'code' 
                   ? 'bg-[#27272a] text-white shadow-sm' 
-                  : 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <Code size={12} />
+              <Code size={13} />
               Code
             </button>
             <button 
               onClick={() => onViewModeChange?.('preview')}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
                 viewMode === 'preview' 
                   ? 'bg-[#27272a] text-white shadow-sm' 
-                  : 'text-gray-400 hover:text-gray-200'
+                  : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <Eye size={12} />
+              <Eye size={13} />
               Preview
             </button>
           </div>
         </div>
         
-        {/* Right Side */}
+        {/* Right Side -- tinh gọn giống rork.app */}
         <div className="flex items-center gap-2">
-          {/* Upgrade Button */}
-          <button className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e1b4b] text-[#c7d2fe] border border-[#312e81] rounded-md text-[12px] font-bold transition-colors hover:bg-[#2e2a5b]">
-            <Sparkles size={10} />
-            Upgrade
-          </button>
-          
-          {/* Integrations */}
-          <Link 
-            href="/dashboard/settings"
-            className="flex items-center gap-1.5 px-3 py-1.5 text-gray-400 hover:text-gray-200 text-[12px] font-medium border border-[#27272a] rounded-md hover:bg-[#27272a] transition-colors"
-          >
-            <Box size={12} /> Integrations
-          </Link>
-          
-          {/* Save Button */}
-          {onSave && (
+          {/* Save (chỉ hiện khi có thay đổi) */}
+          {onSave && hasDirtyFiles && (
             <button 
               onClick={onSave}
-              className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-medium border rounded-md transition-colors ${
-                hasDirtyFiles 
-                  ? 'border-green-500/50 text-green-400 hover:bg-green-500/10' 
-                  : 'border-[#27272a] text-gray-400 hover:bg-[#27272a]'
-              }`}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-green-500/40 text-green-400 rounded-md hover:bg-green-500/10 transition-colors"
               title="Save all (Cmd+S)"
             >
               <Save size={12} />
-              {hasDirtyFiles && 'Save'}
+              Save
             </button>
           )}
-          
-          {/* Download & Git & Build */}
-          <div className="flex items-center border border-[#27272a] rounded-md bg-[#0a0a0a]">
-            <button 
-              onClick={handleExport}
-              className="p-1.5 hover:bg-[#27272a] text-gray-400 hover:text-gray-200 border-r border-[#27272a]"
-              title="Download project as ZIP"
-            >
-              <Download size={14} />
-            </button>
-            <button 
-              onClick={() => setShowGitHubModal(true)}
-              className="p-1.5 hover:bg-[#27272a] text-gray-400 hover:text-gray-200 border-r border-[#27272a]"
-              title="Sync to GitHub"
-            >
-              <Github size={14} />
-            </button>
-            <button 
-              onClick={() => setShowBuildModal(true)}
-              className="p-1.5 hover:bg-[#27272a] text-gray-400 hover:text-gray-200 border-r border-[#27272a]"
-              title="Build for iOS/Android"
-            >
-              <Smartphone size={14} />
-            </button>
-            <button 
-              className="p-1.5 hover:bg-[#27272a] text-gray-400 hover:text-gray-200"
-              title="Command palette (Cmd+K)"
-              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }))}
-            >
-              <Command size={14} />
-            </button>
-          </div>
           
           {/* Publish */}
           <button 
             onClick={() => setShowGitHubModal(true)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-white text-black rounded-md text-[12px] font-bold hover:bg-gray-200 transition-colors shadow-sm ml-1"
+            className="flex items-center gap-1.5 px-4 py-1.5 bg-white text-black rounded-md text-xs font-bold hover:bg-gray-100 transition-colors"
           >
             <Share2 size={12} /> Publish
           </button>
           
+          {/* More menu (3 chấm) */}
+          <div className="relative">
+            <button 
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className="p-1.5 hover:bg-[#27272a] rounded-md text-gray-400 hover:text-white transition-colors"
+            >
+              <MoreHorizontal size={18} />
+            </button>
+            
+            {showMoreMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
+                <div className="absolute right-0 top-full mt-1 w-48 bg-[#18181b] border border-[#27272a] rounded-lg shadow-xl z-50 py-1">
+                  <button
+                    onClick={() => { handleExport(); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                  >
+                    <Download size={14} /> Download ZIP
+                  </button>
+                  <button
+                    onClick={() => { setShowGitHubModal(true); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                  >
+                    <Github size={14} /> Push to GitHub
+                  </button>
+                  <button
+                    onClick={() => { setShowBuildModal(true); setShowMoreMenu(false); }}
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                  >
+                    <Smartphone size={14} /> Build for Mobile
+                  </button>
+                  <div className="h-px bg-[#27272a] my-1" />
+                  <Link
+                    href="/dashboard/settings"
+                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    onClick={() => setShowMoreMenu(false)}
+                  >
+                    Settings
+                  </Link>
+                </div>
+              </>
+            )}
+          </div>
+          
           {/* User Avatar */}
           <Link href="/dashboard/settings">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 border border-white/10 ml-1 cursor-pointer hover:ring-2 hover:ring-purple-500/50" />
+            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 border border-white/10 cursor-pointer hover:ring-2 hover:ring-purple-500/50 transition-all" />
           </Link>
         </div>
       </div>
@@ -415,19 +408,9 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   </div>
                 )}
                 
-                <a
-                  href="https://expo.dev/accounts"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 w-full py-2 bg-[#27272a] text-white rounded-lg text-sm font-medium hover:bg-[#3f3f46] transition-colors"
-                >
-                  Open Expo Dashboard
-                  <ExternalLink size={14} />
-                </a>
-                
                 <button
                   onClick={() => { setShowBuildModal(false); setBuildResult(null); }}
-                  className="w-full py-2 border border-[#27272a] text-gray-300 rounded-lg text-sm font-medium hover:bg-[#27272a] transition-colors"
+                  className="w-full py-2 bg-[#27272a] text-white rounded-lg text-sm font-medium hover:bg-[#3f3f46] transition-colors"
                 >
                   Done
                 </button>
@@ -477,8 +460,8 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   </div>
                 )}
                 
-                <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                  <p className="text-xs text-yellow-400">
+                <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                  <p className="text-xs text-amber-400">
                     Note: You need an Expo account and EAS CLI installed. Add your Expo token in Settings.
                   </p>
                 </div>

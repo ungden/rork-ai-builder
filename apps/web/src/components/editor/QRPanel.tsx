@@ -16,12 +16,14 @@ export function QRPanel({ expoURL, connectedDevices = 0, onShowCode }: QRPanelPr
   return (
     <div className="h-full flex flex-col bg-[#0a0a0a] border-l border-[#27272a]">
       {/* Header */}
-      <div className="p-4 border-b border-[#27272a]">
+      <div className="p-4 pb-3 border-b border-[#27272a]">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
-            <Smartphone size={16} />
-            Test on your phone
-          </h2>
+          <div>
+            <h2 className="text-base font-bold text-white">
+              Test on your phone
+            </h2>
+            <p className="text-xs text-gray-500 mt-0.5">Scan QR code to test</p>
+          </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1 hover:bg-[#27272a] rounded text-gray-400"
@@ -49,10 +51,10 @@ export function QRPanel({ expoURL, connectedDevices = 0, onShowCode }: QRPanelPr
           {expoURL ? (
             <div className="space-y-4">
               {/* QR Code */}
-              <div className="bg-white p-4 rounded-xl mx-auto w-fit">
+              <div className="bg-white p-5 rounded-2xl mx-auto w-fit shadow-lg">
                 <QRCodeSVG
                   value={expoURL}
-                  size={180}
+                  size={200}
                   level="H"
                   includeMargin={false}
                 />
@@ -92,11 +94,11 @@ export function QRPanel({ expoURL, connectedDevices = 0, onShowCode }: QRPanelPr
               </div>
               
               {/* Warning */}
-              <div className="p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
-                <p className="text-xs text-yellow-400 flex items-start gap-2">
+              <div className="p-3 bg-amber-500/5 border border-amber-500/20 rounded-lg">
+                <p className="text-xs text-amber-400/90 flex items-start gap-2 leading-relaxed">
                   <AlertCircle size={12} className="flex-shrink-0 mt-0.5" />
                   <span>
-                    Browser preview may differ from native. Test on device for best results.
+                    Browser preview lacks native functions &amp; looks different. Test on device for the best results.
                   </span>
                 </p>
               </div>
