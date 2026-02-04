@@ -35,6 +35,7 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
   const [attachedImages, setAttachedImages] = useState<ImageAttachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [agentMode, setAgentMode] = useState(false); // Agent mode toggle
+  const [buildMode, setBuildMode] = useState<'build' | 'plan'>('build'); // Plan vs Build
   const [showModelMenu, setShowModelMenu] = useState(false); // Model dropdown
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -309,7 +310,11 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
       return;
     }
     
-    const prompt = input.trim();
+    const rawPrompt = input.trim();
+    // In plan mode, prefix the prompt to tell AI to only plan, not generate code
+    const prompt = buildMode === 'plan' 
+      ? `[PLAN MODE] The user wants you to ONLY describe your plan and approach. Do NOT generate any <file> tags or code. Just explain what screens, components, and features you would build, and how you would structure it. Here is the request: ${rawPrompt}`
+      : rawPrompt;
     const images = attachedImages.map(img => ({
       type: 'base64' as const,
       mediaType: img.mediaType,
@@ -321,10 +326,11 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
     setGenerating(true);
     setStreamingContent('');
     
-    // Add user message (with image indicator)
+    // Add user message (show raw prompt, not the plan prefix)
+    const displayPrompt = buildMode === 'plan' ? `[Plan] ${rawPrompt}` : rawPrompt;
     const userContent = images.length > 0 
-      ? `${prompt}${prompt ? '\n' : ''}[${images.length} image${images.length > 1 ? 's' : ''} attached]`
-      : prompt;
+      ? `${displayPrompt}${displayPrompt ? '\n' : ''}[${images.length} image${images.length > 1 ? 's' : ''} attached]`
+      : displayPrompt;
     addMessage({ role: 'user', content: userContent });
     
     // Add placeholder for assistant
@@ -649,6 +655,31 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
                     </button>
                   </div>
                 )}
+              </div>
+              
+              {/* Plan / Build Toggle */}
+              <div className="flex items-center bg-[#27272a] rounded-full border border-[#3f3f46] overflow-hidden">
+                <button
+                  onClick={() => setBuildMode('plan')}
+                  className={`flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${
+                    buildMode === 'plan'
+                      ? 'bg-amber-500/20 text-amber-400'
+                      : 'text-gray-500 hover:text-gray-300'
+                  }`}
+                >
+                  Plan
+                </button>
+                <div className="w-px h-3 bg-[#3f3f46]" />
+                <button
+                  onClick={() => setBuildMode('build')}
+                  className={`flex items-center gap-1 px-2.5 py-0.5 text-[11px] font-semibold transition-colors ${
+                    buildMode === 'build'
+                      ? 'bg-green-500/20 text-green-400'
+                      : 'text-gray-500 hover:text-gray-300'
+                  }`}
+                >
+                  Build
+                </button>
               </div>
               
               {/* Agent Mode Toggle */}
