@@ -145,65 +145,65 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
   
   return (
     <>
-      <div className="h-12 border-b border-[#27272a] flex items-center justify-between px-3 bg-[#0a0a0a]">
+      <div className="h-14 border-b border-[#27272a] flex items-center justify-between px-4 bg-[#0a0a0a]">
         {/* Left Side */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           {/* Back arrow */}
           <Link 
             href="/dashboard"
-            className="p-1.5 hover:bg-[#27272a] rounded-md text-gray-400 hover:text-white transition-colors"
+            className="p-2 hover:bg-[#27272a] rounded-lg text-gray-400 hover:text-white transition-colors"
           >
-            <ChevronLeft size={18} />
+            <ChevronLeft size={20} />
           </Link>
           
           {/* Project Name + Lock + Dropdown */}
-          <button className="flex items-center gap-1.5 hover:bg-[#27272a] px-2 py-1.5 rounded-md transition-colors max-w-[200px]">
-            <span className="font-semibold text-white truncate text-sm">
+          <button className="flex items-center gap-2 hover:bg-[#27272a] px-3 py-1.5 rounded-lg transition-colors max-w-[240px]">
+            <span className="font-bold text-white truncate text-base">
               {projectName || 'Untitled Project'}
             </span>
-            <Lock size={11} className="text-gray-500 flex-shrink-0" />
-            <ChevronDown size={12} className="text-gray-500 flex-shrink-0" />
+            <Lock size={12} className="text-gray-500 flex-shrink-0" />
+            <ChevronDown size={14} className="text-gray-500 flex-shrink-0" />
           </button>
           
-          <div className="h-5 w-px bg-[#27272a]" />
+          <div className="h-6 w-px bg-[#27272a]" />
           
           {/* Code / Preview pill toggle -- giống rork.app */}
-          <div className="flex items-center bg-[#18181b] rounded-lg p-0.5 border border-[#27272a]">
+          <div className="flex items-center bg-[#18181b] rounded-lg p-1 border border-[#27272a]">
             <button 
               onClick={() => onViewModeChange?.('code')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'code' 
                   ? 'bg-[#27272a] text-white shadow-sm' 
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <Code size={13} />
+              <Code size={14} />
               Code
             </button>
             <button 
               onClick={() => onViewModeChange?.('preview')}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-all ${
+              className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'preview' 
                   ? 'bg-[#27272a] text-white shadow-sm' 
                   : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <Eye size={13} />
+              <Eye size={14} />
               Preview
             </button>
           </div>
         </div>
         
         {/* Right Side -- tinh gọn giống rork.app */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* Save (chỉ hiện khi có thay đổi) */}
           {onSave && hasDirtyFiles && (
             <button 
               onClick={onSave}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-green-500/40 text-green-400 rounded-md hover:bg-green-500/10 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium border border-green-500/40 text-green-400 rounded-lg hover:bg-green-500/10 transition-colors"
               title="Save all (Cmd+S)"
             >
-              <Save size={12} />
+              <Save size={14} />
               Save
             </button>
           )}
@@ -211,46 +211,46 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
           {/* Publish */}
           <button 
             onClick={() => setShowGitHubModal(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-white text-black rounded-md text-xs font-bold hover:bg-gray-100 transition-colors"
+            className="flex items-center gap-2 px-5 py-2 bg-white text-black rounded-lg text-sm font-bold hover:bg-gray-100 transition-colors"
           >
-            <Share2 size={12} /> Publish
+            <Share2 size={14} /> Publish
           </button>
           
           {/* More menu (3 chấm) */}
           <div className="relative">
             <button 
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className="p-1.5 hover:bg-[#27272a] rounded-md text-gray-400 hover:text-white transition-colors"
+              className="p-2 hover:bg-[#27272a] rounded-lg text-gray-400 hover:text-white transition-colors"
             >
-              <MoreHorizontal size={18} />
+              <MoreHorizontal size={20} />
             </button>
             
             {showMoreMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
-                <div className="absolute right-0 top-full mt-1 w-48 bg-[#18181b] border border-[#27272a] rounded-lg shadow-xl z-50 py-1">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl z-50 py-1.5 overflow-hidden">
                   <button
                     onClick={() => { handleExport(); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
                   >
-                    <Download size={14} /> Download ZIP
+                    <Download size={16} /> Download ZIP
                   </button>
                   <button
                     onClick={() => { setShowGitHubModal(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
                   >
-                    <Github size={14} /> Push to GitHub
+                    <Github size={16} /> Push to GitHub
                   </button>
                   <button
                     onClick={() => { setShowBuildModal(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
                   >
-                    <Smartphone size={14} /> Build for Mobile
+                    <Smartphone size={16} /> Build for Mobile
                   </button>
                   <div className="h-px bg-[#27272a] my-1" />
                   <Link
                     href="/dashboard/settings"
-                    className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
                     onClick={() => setShowMoreMenu(false)}
                   >
                     Settings
@@ -262,7 +262,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
           
           {/* User Avatar */}
           <Link href="/dashboard/settings">
-            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 border border-white/10 cursor-pointer hover:ring-2 hover:ring-purple-500/50 transition-all" />
+            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-orange-500 border-2 border-white/10 cursor-pointer hover:ring-2 hover:ring-purple-500/50 transition-all" />
           </Link>
         </div>
       </div>

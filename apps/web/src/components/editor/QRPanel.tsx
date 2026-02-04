@@ -19,10 +19,10 @@ export function QRPanel({ expoURL, connectedDevices = 0, onShowCode }: QRPanelPr
       <div className="p-4 pb-3 border-b border-[#27272a]">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-white">
+            <h2 className="text-xl font-bold text-white">
               Test on your phone
             </h2>
-            <p className="text-xs text-gray-500 mt-0.5">Scan QR code to test</p>
+            <p className="text-sm text-gray-500 mt-1">Scan QR code to test</p>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -92,25 +92,8 @@ export function QRPanel({ expoURL, connectedDevices = 0, onShowCode }: QRPanelPr
         </div>
       )}
       
-      {/* Bottom Actions */}
-      <div className="p-4 border-t border-[#27272a] space-y-2">
-        {onShowCode && (
-          <button
-            onClick={onShowCode}
-            className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#18181b] border border-[#27272a] text-gray-300 rounded-lg text-sm font-medium hover:bg-[#27272a] transition-colors"
-          >
-            <Code size={14} />
-            View Code
-          </button>
-        )}
-        
-        <button
-          className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors"
-        >
-          <Share2 size={14} />
-          Share App
-        </button>
-      </div>
+      {/* Bottom Actions - Removed to match Rork */}
+      {/* <div className="p-4 border-t border-[#27272a] space-y-2">...</div> */}
     </div>
   );
 }
