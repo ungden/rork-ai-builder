@@ -11,7 +11,7 @@ interface PreviewPanelProps {
   onDevicesChange?: (count: number) => void;
 }
 
-const SDK_VERSION = '52.0.0';
+const SDK_VERSION = '54.0.0';
 
 function transformFilesToSnack(files: Record<string, { path: string; content: string }>): SnackFiles {
   const snackFiles: SnackFiles = {};

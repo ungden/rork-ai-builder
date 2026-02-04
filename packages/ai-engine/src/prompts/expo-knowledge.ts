@@ -1,7 +1,7 @@
 /**
  * Expo Official Skills Knowledge Base
  * Extracted from https://github.com/expo/skills
- * Filtered for SDK 52 compatibility (Expo Snack)
+ * For SDK 54 (Expo Snack)
  */
 
 // From expo-app-design/skills/building-native-ui/SKILL.md
@@ -82,13 +82,21 @@ export default function RootLayout() {
 
 #### Modals
 \`\`\`typescript
-// In _layout.tsx
+// In _layout.tsx - standard modal
 <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
 
-// Navigate to modal
+// Form sheet with detents (SDK 54+)
+<Stack.Screen name="sheet" options={{
+  presentation: 'formSheet',
+  sheetAllowedDetents: [0.5, 1.0],
+  sheetGrabberVisible: true,
+}} />
+
+// Navigate to modal/sheet
 import { useRouter } from 'expo-router';
 const router = useRouter();
 router.push('/modal');
+router.push('/sheet');
 \`\`\`
 
 ### Common Route Structure
@@ -183,7 +191,7 @@ useEffect(() => {
 }, [url]);
 \`\`\``;
 
-// From expo-app-design/references/animations.md (SDK 52 compatible parts)
+// From expo-app-design/references/animations.md (SDK 54 compatible parts)
 export const EXPO_ANIMATIONS = `## Animations with Reanimated (from Expo Official Skills)
 
 ### Entering/Exiting Animations
@@ -288,7 +296,7 @@ function useStoredState<T>(key: string, defaultValue: T) {
 }
 \`\`\``;
 
-// From expo-app-design/references/controls.md (SDK 52 compatible)
+// From expo-app-design/references/controls.md (SDK 54 compatible)
 export const EXPO_CONTROLS = `## Native Controls (from Expo Official Skills)
 
 ### Switch

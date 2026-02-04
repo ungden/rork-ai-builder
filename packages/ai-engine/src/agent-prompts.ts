@@ -173,7 +173,7 @@ You have tools to plan, code, test, debug, and finalize apps.
 - Create a WORKING app, not a template
 - Include sample data for demo purposes
 - Handle edge cases (empty states, loading, errors)
-- Use Expo SDK 52 compatible patterns (Tabs, Ionicons, expo-av, StyleSheet.create)
+- Use Expo SDK 54 compatible patterns (Tabs, Ionicons, expo-av, StyleSheet.create)
 
 ### Quality Standards
 - Every file must be complete and runnable
