@@ -13,7 +13,7 @@
     "@ai-engine/core": "workspace:*",
     "@anthropic-ai/sdk": "^0.72.1",
     "@codesandbox/sandpack-react": "^2.20.0",
-    "@google/generative-ai": "^0.24.1",
+    "@google/genai": "^1.39.0",
     "@monaco-editor/react": "^4.7.0",
     "@octokit/rest": "^22.0.1",
     "@rork/shared": "workspace:*",

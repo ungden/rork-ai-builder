@@ -199,7 +199,8 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
   // When iframe finishes loading the Snack runtime:
   //   1. Re-capture contentWindow (iframe navigation may have replaced it)
   //   2. Enable the Snack (starts transports, sends code to the iframe runtime)
-  //   3. Also enable online for QR code / physical device support
+  //   3. Inject synthetic CONNECT to fix race condition where iframe sent CONNECT before we started listening
+  //   4. Also enable online for QR code / physical device support
   const handleIframeLoad = useCallback(() => {
     const iframe = document.querySelector<HTMLIFrameElement>('iframe[title="Expo Snack Preview"]');
     if (iframe?.contentWindow) {
@@ -212,9 +213,26 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
       if (snackRef.current) {
         snackRef.current.setDisabled(false);
         snackRef.current.setOnline(true);
-        // Force send current code after enabling
+
+        // Fix "Connecting..." forever bug:
+        // The iframe may have sent its CONNECT postMessage before setDisabled(false)
+        // started the webplayer transport listener. When that happens, connectionsCount
+        // stays 0 and sendCodeChanges() is a no-op.
+        // We inject a synthetic CONNECT event into the webplayer transport to force
+        // connectionsCount to 1, which allows code to be sent to the iframe.
         setTimeout(() => {
           if (snackRef.current) {
+            const state = snackRef.current.getState();
+            const webplayerTransport = state.transports?.webplayer;
+            if (webplayerTransport) {
+              webplayerTransport.postMessage({
+                type: 'synthetic_event',
+                data: JSON.stringify({
+                  type: 'CONNECT',
+                  device: { id: 'web-synthetic', name: 'Web Player', platform: 'web' },
+                }),
+              } as any); // eslint-disable-line @typescript-eslint/no-explicit-any
+            }
             snackRef.current.sendCodeChanges();
           }
         }, 500);

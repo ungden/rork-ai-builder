@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, SchemaType, type FunctionDeclaration } from '@google/generative-ai';
+import { GoogleGenAI, type Chat, type Content, type Part, Type } from '@google/genai';
 import type { 
   AIProvider, 
   GenerateParams, 
@@ -11,19 +11,21 @@ import { FULL_SYSTEM_PROMPT } from '../prompts';
 
 const GEMINI_MODEL = 'gemini-3-pro-preview';
 
-// Tool declaration for Gemini function calling
-const WRITE_FILE_TOOL: FunctionDeclaration = {
+// Tool declaration using the new @google/genai SDK format
+const WRITE_FILE_DECLARATION = {
   name: 'write_file',
-  description: 'Write or create a file in the project. Always provide COMPLETE file content with all imports and exports. Call this tool for EVERY file you want to create or modify.',
+  description:
+    'Write or create a file in the project. Always provide COMPLETE file content with all imports and exports. Call this tool for EVERY file you want to create or modify.',
   parameters: {
-    type: SchemaType.OBJECT,
+    type: Type.OBJECT,
     properties: {
       path: {
-        type: SchemaType.STRING,
-        description: 'File path relative to project root (e.g., app/_layout.tsx, components/Button.tsx)',
+        type: Type.STRING,
+        description:
+          'File path relative to project root (e.g., app/_layout.tsx, components/Button.tsx)',
       },
       content: {
-        type: SchemaType.STRING,
+        type: Type.STRING,
         description: 'Complete file content including all imports and exports',
       },
     },
@@ -34,13 +36,13 @@ const WRITE_FILE_TOOL: FunctionDeclaration = {
 export class GeminiProvider implements AIProvider {
   name = 'gemini';
   displayName = 'Gemini 3 Pro';
-  
-  private client: GoogleGenerativeAI;
-  
+
+  private ai: GoogleGenAI;
+
   constructor(apiKey: string) {
-    this.client = new GoogleGenerativeAI(apiKey);
+    this.ai = new GoogleGenAI({ apiKey });
   }
-  
+
   async generateCode(params: GenerateParams): Promise<GenerateResult> {
     const {
       prompt,
@@ -49,89 +51,87 @@ export class GeminiProvider implements AIProvider {
       conversationHistory = [],
       maxTokens = 65536,
     } = params;
-    
+
     const fullSystemPrompt = systemPrompt || FULL_SYSTEM_PROMPT;
-    
-    const model = this.client.getGenerativeModel({
-      model: GEMINI_MODEL,
-      systemInstruction: fullSystemPrompt,
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        temperature: 1.0,
-      },
-      tools: [{ functionDeclarations: [WRITE_FILE_TOOL] }],
-    });
-    
+
     let userContent = prompt;
     if (currentFiles && Object.keys(currentFiles).length > 0) {
       const fileContext = Object.entries(currentFiles)
-        .map(([path, content]) => `<current_file path="${path}">\n${content}\n</current_file>`)
+        .map(
+          ([path, content]) =>
+            `<current_file path="${path}">\n${content}\n</current_file>`,
+        )
         .join('\n\n');
       userContent = `Current project files:\n${fileContext}\n\nUser request: ${prompt}`;
     }
-    
-    const chat = model.startChat({
+
+    // Use chat API - it automatically handles thoughtSignature for Gemini 3 thinking models
+    const chat = this.ai.chats.create({
+      model: GEMINI_MODEL,
+      config: {
+        tools: [{ functionDeclarations: [WRITE_FILE_DECLARATION] }],
+        systemInstruction: fullSystemPrompt,
+        maxOutputTokens: maxTokens,
+        temperature: 1.0,
+      },
       history: this.formatHistory(conversationHistory),
     });
-    
+
     let fullText = '';
     const files: Array<{ path: string; content: string; language: string }> = [];
-    let inputTokens = 0;
-    let outputTokens = 0;
-    
-    // Multi-turn: AI responds with text + function calls, we send results back, AI continues
-    // Using non-streaming sendMessage for all rounds (handles thought_signature automatically)
-    let response = (await chat.sendMessage(userContent)).response;
-    
+
+    // Multi-turn tool loop: send message, process function calls, send results, repeat
+    let response = await chat.sendMessage({ message: userContent });
+
     for (let round = 0; round < 20; round++) {
-      const candidate = response.candidates?.[0];
-      if (!candidate?.content?.parts) break;
-      
-      const functionCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
-      
-      for (const part of candidate.content.parts) {
-        if ('text' in part && part.text) {
-          fullText += part.text;
-        }
-        if ('functionCall' in part && part.functionCall) {
-          const fc = part.functionCall;
-          functionCalls.push({ name: fc.name, args: fc.args as Record<string, unknown> });
-          if (fc.name === 'write_file') {
-            const args = fc.args as { path: string; content: string };
-            if (args.path && args.content) {
-              files.push({
-                path: args.path.trim(),
-                content: args.content,
-                language: getLanguageFromPath(args.path),
-              });
-            }
+      // Collect text
+      if (response.text) {
+        fullText += response.text;
+      }
+
+      // Collect function calls
+      const functionCalls = response.functionCalls;
+      if (!functionCalls || functionCalls.length === 0) break;
+
+      for (const fc of functionCalls) {
+        if (fc.name === 'write_file' && fc.args) {
+          const args = fc.args as { path: string; content: string };
+          if (args.path && args.content) {
+            files.push({
+              path: args.path.trim(),
+              content: args.content,
+              language: getLanguageFromPath(args.path),
+            });
           }
         }
       }
-      
-      if (functionCalls.length === 0) break;
-      
-      const functionResponses = functionCalls.map(fc => ({
+
+      // Build function response parts
+      const functionResponseParts: Part[] = functionCalls.map((fc) => ({
         functionResponse: {
-          name: fc.name,
+          name: fc.name!,
           response: { success: true },
         },
       }));
-      
-      response = (await chat.sendMessage(functionResponses)).response;
+
+      // Send function responses back - chat handles thoughtSignature automatically
+      response = await chat.sendMessage({ message: functionResponseParts });
     }
-    
-    const usageMetadata = response.usageMetadata;
-    inputTokens = usageMetadata?.promptTokenCount || Math.ceil(userContent.length / 4);
-    outputTokens = usageMetadata?.candidatesTokenCount || Math.ceil(fullText.length / 4);
-    
+
+    const inputTokens =
+      response.usageMetadata?.promptTokenCount ||
+      Math.ceil(userContent.length / 4);
+    const outputTokens =
+      response.usageMetadata?.candidatesTokenCount ||
+      Math.ceil(fullText.length / 4);
+
     return {
       text: fullText,
       files,
       usage: { inputTokens, outputTokens },
     };
   }
-  
+
   async *streamCode(params: GenerateParams): AsyncGenerator<StreamChunk> {
     const {
       prompt,
@@ -140,152 +140,111 @@ export class GeminiProvider implements AIProvider {
       conversationHistory = [],
       maxTokens = 65536,
     } = params;
-    
+
     const fullSystemPrompt = systemPrompt || FULL_SYSTEM_PROMPT;
-    
-    const model = this.client.getGenerativeModel({
-      model: GEMINI_MODEL,
-      systemInstruction: fullSystemPrompt,
-      generationConfig: {
-        maxOutputTokens: maxTokens,
-        temperature: 1.0,
-      },
-      tools: [{ functionDeclarations: [WRITE_FILE_TOOL] }],
-    });
-    
+
     let userContent = prompt;
     if (currentFiles && Object.keys(currentFiles).length > 0) {
       const fileContext = Object.entries(currentFiles)
-        .map(([path, content]) => `<current_file path="${path}">\n${content}\n</current_file>`)
+        .map(
+          ([path, content]) =>
+            `<current_file path="${path}">\n${content}\n</current_file>`,
+        )
         .join('\n\n');
       userContent = `Current project files:\n${fileContext}\n\nUser request: ${prompt}`;
     }
-    
-    const chat = model.startChat({
+
+    // Use chat API with NON-STREAMING sendMessage (not sendMessageStream)
+    // This ensures thoughtSignature is handled correctly by the SDK.
+    // We yield SSE events as each tool call completes (files appear incrementally).
+    // At the end, we yield the text explanation.
+    const chat = this.ai.chats.create({
+      model: GEMINI_MODEL,
+      config: {
+        tools: [{ functionDeclarations: [WRITE_FILE_DECLARATION] }],
+        systemInstruction: fullSystemPrompt,
+        maxOutputTokens: maxTokens,
+        temperature: 1.0,
+      },
       history: this.formatHistory(conversationHistory),
     });
-    
+
     let fullText = '';
-    
+
     try {
-      // First turn: stream for text output
-      let streamResult = await chat.sendMessageStream(userContent);
-      
+      let response = await chat.sendMessage({ message: userContent });
+
       for (let round = 0; round < 20; round++) {
-        const functionCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
-        
-        for await (const chunk of streamResult.stream) {
-          for (const part of chunk.candidates?.[0]?.content?.parts || []) {
-            if ('text' in part && part.text) {
-              fullText += part.text;
-              yield { type: 'text', content: part.text };
-            }
-            if ('functionCall' in part && part.functionCall) {
-              const fc = part.functionCall;
-              functionCalls.push({ name: fc.name, args: fc.args as Record<string, unknown> });
-              
-              if (fc.name === 'write_file') {
-                const args = fc.args as { path: string; content: string };
-                if (args.path && args.content) {
-                  yield {
-                    type: 'file',
-                    file: {
-                      path: args.path.trim(),
-                      content: args.content,
-                      language: getLanguageFromPath(args.path),
-                    },
-                  };
-                }
-              }
+        // Collect text from this response
+        if (response.text) {
+          fullText += response.text;
+        }
+
+        // Check for function calls
+        const functionCalls = response.functionCalls;
+        if (!functionCalls || functionCalls.length === 0) {
+          // No more function calls - we're done with the tool loop
+          break;
+        }
+
+        // Process each function call and yield file events immediately
+        for (const fc of functionCalls) {
+          if (fc.name === 'write_file' && fc.args) {
+            const args = fc.args as { path: string; content: string };
+            if (args.path && args.content) {
+              yield {
+                type: 'file',
+                file: {
+                  path: args.path.trim(),
+                  content: args.content,
+                  language: getLanguageFromPath(args.path),
+                },
+              };
             }
           }
         }
-        
-        // IMPORTANT: Await the full response before sending next message.
-        // This ensures the chat history includes thought_signature from thinking models.
-        const roundResponse = await streamResult.response;
-        
-        if (functionCalls.length === 0) {
-          // No more function calls - we're done
-          const usageMetadata = roundResponse.usageMetadata;
-          const inputTokens = usageMetadata?.promptTokenCount || Math.ceil(userContent.length / 4);
-          const outputTokens = usageMetadata?.candidatesTokenCount || Math.ceil(fullText.length / 4);
-          yield { type: 'done', usage: { inputTokens, outputTokens } };
-          return;
-        }
-        
-        const functionResponses = functionCalls.map(fc => ({
+
+        // Build function response parts
+        const functionResponseParts: Part[] = functionCalls.map((fc) => ({
           functionResponse: {
-            name: fc.name,
+            name: fc.name!,
             response: { success: true },
           },
         }));
-        
-        // Use non-streaming for multi-turn function responses to avoid thought_signature race conditions.
-        // Then stream again on the next round.
-        const nonStreamResult = await chat.sendMessage(functionResponses);
-        const nonStreamResponse = nonStreamResult.response;
-        const candidate = nonStreamResponse.candidates?.[0];
-        
-        if (!candidate?.content?.parts) break;
-        
-        // Process the non-streamed response for text and more function calls
-        const moreFunctionCalls: Array<{ name: string; args: Record<string, unknown> }> = [];
-        
-        for (const part of candidate.content.parts) {
-          if ('text' in part && part.text) {
-            fullText += part.text;
-            yield { type: 'text', content: part.text };
-          }
-          if ('functionCall' in part && part.functionCall) {
-            const fc = part.functionCall;
-            moreFunctionCalls.push({ name: fc.name, args: fc.args as Record<string, unknown> });
-            if (fc.name === 'write_file') {
-              const args = fc.args as { path: string; content: string };
-              if (args.path && args.content) {
-                yield {
-                  type: 'file',
-                  file: {
-                    path: args.path.trim(),
-                    content: args.content,
-                    language: getLanguageFromPath(args.path),
-                  },
-                };
-              }
-            }
-          }
-        }
-        
-        if (moreFunctionCalls.length === 0) {
-          const usageMetadata = nonStreamResponse.usageMetadata;
-          const inputTokens = usageMetadata?.promptTokenCount || Math.ceil(userContent.length / 4);
-          const outputTokens = usageMetadata?.candidatesTokenCount || Math.ceil(fullText.length / 4);
-          yield { type: 'done', usage: { inputTokens, outputTokens } };
-          return;
-        }
-        
-        // Continue the loop: send these function responses, then stream again
-        const moreResponses = moreFunctionCalls.map(fc => ({
-          functionResponse: {
-            name: fc.name,
-            response: { success: true },
-          },
-        }));
-        
-        streamResult = await chat.sendMessageStream(moreResponses);
+
+        // Send function responses back
+        response = await chat.sendMessage({ message: functionResponseParts });
       }
-      
-      yield { type: 'done', usage: { inputTokens: 0, outputTokens: 0 } };
+
+      // Now yield the accumulated text in chunks to simulate streaming
+      if (fullText) {
+        // Split into ~50 char chunks to give a streaming feel
+        const chunkSize = 50;
+        for (let i = 0; i < fullText.length; i += chunkSize) {
+          const textChunk = fullText.slice(i, i + chunkSize);
+          yield { type: 'text', content: textChunk };
+        }
+      }
+
+      // Usage from the last response
+      const inputTokens =
+        response.usageMetadata?.promptTokenCount ||
+        Math.ceil(userContent.length / 4);
+      const outputTokens =
+        response.usageMetadata?.candidatesTokenCount ||
+        Math.ceil(fullText.length / 4);
+
+      yield { type: 'done', usage: { inputTokens, outputTokens } };
     } catch (error) {
-      yield { type: 'error', error: error instanceof Error ? error.message : 'Unknown error' };
+      yield {
+        type: 'error',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      };
     }
   }
-  
-  private formatHistory(history: ConversationMessage[]): Array<{
-    role: 'user' | 'model';
-    parts: Array<{ text: string }>;
-  }> {
-    return history.map(msg => ({
+
+  private formatHistory(history: ConversationMessage[]): Content[] {
+    return history.map((msg) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }));
