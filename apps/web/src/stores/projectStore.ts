@@ -36,7 +36,7 @@ interface ProjectState {
   createFile: (path: string, content: string, language?: string) => void;
   setActiveFile: (path: string | null) => void;
   addMessage: (message: Omit<UIMessage, 'id' | 'timestamp'>) => void;
-  updateLastMessage: (content: string) => void;
+  updateLastMessage: (content: string, filesChanged?: string[]) => void;
   setMessages: (messages: UIMessage[]) => void;
   setGenerating: (value: boolean) => void;
   setSelectedModel: (model: 'claude' | 'gemini') => void;
@@ -128,10 +128,14 @@ export const useProjectStore = create<ProjectState>()(
       });
     }),
     
-    updateLastMessage: (content) => set((state) => {
+    updateLastMessage: (content, filesChanged) => set((state) => {
       const lastMessage = state.messages[state.messages.length - 1];
       if (lastMessage && lastMessage.role === 'assistant') {
         lastMessage.content = content;
+        lastMessage.isStreaming = false;
+        if (filesChanged && filesChanged.length > 0) {
+          lastMessage.filesChanged = filesChanged;
+        }
       }
     }),
     

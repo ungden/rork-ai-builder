@@ -1,10 +1,15 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Send, Loader2, Mic, ChevronDown, ChevronRight, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode } from 'lucide-react';
+import { Send, Loader2, Mic, ChevronDown, ChevronRight, Sparkles, Image as ImageIcon, X, Zap, Bot, FileCode, RotateCcw, Code, Share2 } from 'lucide-react';
 import { useProjectStore } from '@/stores/projectStore';
 import { useAgentStore } from '@/stores/agentStore';
 import { AgentStatus } from './AgentStatus';
+
+// Strip <file path="...">...</file> blocks from AI response text
+function stripFileBlocks(text: string): string {
+  return text.replace(/<file path="[^"]*">[\s\S]*?<\/file>/g, '').trim();
+}
 
 interface ChatPanelProps {
   projectId: string;
@@ -23,7 +28,6 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
   const [attachedImages, setAttachedImages] = useState<ImageAttachment[]>([]);
   const [isDragging, setIsDragging] = useState(false);
   const [agentMode, setAgentMode] = useState(false); // Agent mode toggle
-  const [showEditedFiles, setShowEditedFiles] = useState(true); // Edited files section
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -255,8 +259,9 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         }
       }
       
-      // Update final message
-      updateLastMessage(summaryContent);
+      // Update final message with file list
+      const changedPaths = generatedFiles.map(f => f.path);
+      updateLastMessage(summaryContent, changedPaths);
       
       // Apply generated files
       if (generatedFiles.length > 0) {
@@ -369,8 +374,13 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         }
       }
       
-      // Update final message
-      updateLastMessage(fullContent);
+      // Strip file blocks from message text, pass changed file paths
+      const cleanContent = stripFileBlocks(fullContent);
+      const changedPaths = generatedFiles.map(f => f.path);
+      updateLastMessage(
+        cleanContent || 'Project settings updated successfully',
+        changedPaths
+      );
       
       // Apply generated files
       if (generatedFiles.length > 0) {
@@ -420,50 +430,6 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
         </div>
       )}
       
-      {/* Edited Files Section - Collapsible */}
-      {Object.keys(files).length > 0 && (
-        <div className="border-b border-[#27272a]">
-          <button
-            onClick={() => setShowEditedFiles(!showEditedFiles)}
-            className="w-full flex items-center justify-between px-4 py-2 text-gray-300 hover:bg-[#18181b] transition-colors"
-          >
-            <div className="flex items-center gap-2">
-              <FileCode size={14} className="text-gray-500" />
-              <span className="text-sm font-medium">Edited files</span>
-              <span className="text-xs text-gray-500 bg-[#27272a] px-1.5 py-0.5 rounded">
-                {Object.keys(files).length}
-              </span>
-            </div>
-            {showEditedFiles ? (
-              <ChevronDown size={14} className="text-gray-500" />
-            ) : (
-              <ChevronRight size={14} className="text-gray-500" />
-            )}
-          </button>
-          
-          {showEditedFiles && (
-            <div className="px-4 pb-3 space-y-1 max-h-[200px] overflow-y-auto custom-scrollbar">
-              {Object.values(files).map((file) => (
-                <div 
-                  key={file.path}
-                  className="flex items-center gap-2 px-2 py-1.5 rounded hover:bg-[#18181b] cursor-pointer text-xs group"
-                >
-                  <div className={`w-1.5 h-1.5 rounded-full ${file.isDirty ? 'bg-yellow-500' : 'bg-blue-500'}`} />
-                  <span className="text-gray-400 truncate flex-1">
-                    {file.path.startsWith('/') ? file.path.slice(1) : file.path}
-                  </span>
-                  {file.isDirty && (
-                    <span className="text-[10px] text-yellow-500 opacity-0 group-hover:opacity-100">
-                      modified
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-      
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
         {messages.length === 0 ? (
@@ -498,9 +464,10 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
                     )}
                   </div>
                   <div className="pl-4">
+                    {/* Message text - strip file blocks */}
                     {msg.isStreaming && isLoading ? (
                       <div className="text-gray-300 leading-relaxed text-[13px] whitespace-pre-wrap">
-                        {streamingContent || (
+                        {stripFileBlocks(streamingContent) || (
                           <span className="flex items-center gap-2 text-gray-500">
                             <Loader2 className="w-4 h-4 animate-spin" />
                             {isAgentRunning ? 'Agent is building...' : 'Generating...'}
@@ -509,21 +476,49 @@ export function ChatPanel({ projectId }: ChatPanelProps) {
                       </div>
                     ) : (
                       <div className="text-gray-300 leading-relaxed text-[13px] whitespace-pre-wrap">
-                        {msg.content}
+                        {stripFileBlocks(msg.content) || (msg.filesChanged && msg.filesChanged.length > 0 ? 'Project settings updated successfully' : msg.content)}
                       </div>
                     )}
                     
+                    {/* Per-message edited files - Rork style collapsible */}
                     {msg.filesChanged && msg.filesChanged.length > 0 && (
-                      <div className="mt-2 space-y-1">
-                        {msg.filesChanged.map(file => (
+                      <div className="mt-3 bg-[#18181b] border border-[#27272a] rounded-lg overflow-hidden">
+                        {/* File list header */}
+                        <div className="px-3 py-2 flex items-center gap-2 text-xs text-gray-400 border-b border-[#27272a]">
+                          <FileCode size={12} />
+                          <span className="font-medium text-gray-300">
+                            {msg.filesChanged.length === 1 ? 'Edited' : `Edited ${msg.filesChanged.length} files`}
+                          </span>
+                        </div>
+                        
+                        {/* File entries */}
+                        {msg.filesChanged.map(filePath => (
                           <div 
-                            key={file}
-                            className="flex items-center gap-2 text-xs text-gray-400"
+                            key={filePath}
+                            className="px-3 py-1.5 flex items-center gap-2 text-xs border-b border-[#27272a] last:border-b-0 hover:bg-[#27272a]/50"
                           >
-                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                            <span>Updated {file}</span>
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 flex-shrink-0" />
+                            <span className="text-gray-400 truncate flex-1">
+                              Edited {filePath.startsWith('/') ? filePath.slice(1) : filePath}
+                            </span>
                           </div>
                         ))}
+                        
+                        {/* Action buttons - Restore / Code / Share */}
+                        <div className="px-3 py-2 flex items-center gap-3 border-t border-[#27272a]">
+                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
+                            <RotateCcw size={11} />
+                            Restore
+                          </button>
+                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
+                            <Code size={11} />
+                            Code
+                          </button>
+                          <button className="flex items-center gap-1.5 text-[11px] text-gray-500 hover:text-gray-300 transition-colors">
+                            <Share2 size={11} />
+                            Share
+                          </button>
+                        </div>
                       </div>
                     )}
                   </div>

@@ -236,7 +236,7 @@ export function PreviewPanel({ projectId, onExpoURLChange, onDevicesChange }: Pr
   return (
     <div className="h-full w-full flex flex-col bg-[#050505]">
       {/* Controls - top right corner */}
-      <div className="absolute top-16 right-[296px] z-20">
+      <div className="absolute top-4 right-4 z-20">
         <div className="flex items-center bg-[#0a0a0a] border border-[#27272a] rounded-lg shadow-xl p-1 gap-1">
           <div className="flex items-center gap-2 px-2 py-1 border-r border-[#27272a] mr-1">
             {isLoading ? (

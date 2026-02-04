@@ -193,24 +193,22 @@ export default function EditorPage() {
         onViewModeChange={setViewMode}
       />
       
-      {/* Main Content - Rork-style layout */}
+      {/* Main Content - Rork-style layout: Chat | Preview | QR */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Side - Chat Panel (fixed width ~35%) */}
-        <div className="w-[380px] border-r border-border flex-shrink-0">
+        {/* Left - Chat Panel (~35%) */}
+        <div className="w-[420px] border-r border-border flex-shrink-0">
           <ChatPanel projectId={projectId} />
         </div>
         
-        {/* Center - Preview OR Code (toggle) */}
-        <div className="flex-1 min-w-0">
+        {/* Center - Preview OR Code (toggle, ~40%) */}
+        <div className="flex-1 min-w-0 relative">
           {viewMode === 'preview' ? (
-            /* Preview Mode - Big phone frame centered */
             <PreviewPanel 
               projectId={projectId}
               onExpoURLChange={handleExpoURLChange}
               onDevicesChange={handleDevicesChange}
             />
           ) : (
-            /* Code Mode - FileTree + Code Editor */
             <div className="h-full flex">
               <div className="w-56 border-r border-border flex-shrink-0">
                 <FileTree />
@@ -222,8 +220,8 @@ export default function EditorPage() {
           )}
         </div>
         
-        {/* Right Side - QR Panel (always visible, fixed width ~280px) */}
-        <div className="w-[280px] flex-shrink-0">
+        {/* Right - QR Panel (~25%, max 300px) */}
+        <div className="w-[300px] flex-shrink-0">
           <QRPanel 
             expoURL={expoURL}
             connectedDevices={connectedDevices}
