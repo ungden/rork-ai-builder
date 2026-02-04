@@ -35,6 +35,14 @@ import {
   HAPTICS,
 } from './components';
 
+import {
+  EXPO_UI_GUIDELINES,
+  EXPO_DATA_FETCHING,
+  EXPO_ANIMATIONS,
+  EXPO_STORAGE,
+  EXPO_CONTROLS,
+} from './expo-knowledge';
+
 // Main system prompt - adapted from Lovable's agent pattern
 export const SYSTEM_PROMPT = `You are Rork, an AI app builder that creates and modifies React Native mobile applications using Expo SDK 52. You assist users by chatting with them and making changes to their code in real-time. You can see the current project files and use them as context.
 
@@ -163,6 +171,17 @@ export const BEST_PRACTICES_PROMPT = `${EXPO_BEST_PRACTICES}
 
 ${EXPO_PACKAGES}`;
 
+// Expo Official Knowledge (from github.com/expo/skills)
+export const EXPO_KNOWLEDGE_PROMPT = `${EXPO_UI_GUIDELINES}
+
+${EXPO_DATA_FETCHING}
+
+${EXPO_ANIMATIONS}
+
+${EXPO_STORAGE}
+
+${EXPO_CONTROLS}`;
+
 // Combined full prompt
 export const FULL_SYSTEM_PROMPT = `${SYSTEM_PROMPT}
 
@@ -172,7 +191,9 @@ ${STYLING_PROMPT}
 
 ${COMPONENTS_PROMPT}
 
-${BEST_PRACTICES_PROMPT}`;
+${BEST_PRACTICES_PROMPT}
+
+${EXPO_KNOWLEDGE_PROMPT}`;
 
 // Legacy exports
 export const REACT_NATIVE_RULES = `## React Native Best Practices (SDK 52)
