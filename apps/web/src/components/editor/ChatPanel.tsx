@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { Send, Loader2, ChevronDown, ChevronRight, Sparkles, FileCode, Code, AlertCircle, Mic, NotebookPen } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { useProjectStore } from '@/stores/projectStore';
@@ -58,21 +58,8 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingContent]);
 
-  // Auto-send initial prompt from landing page
-  useEffect(() => {
-    if (initialPrompt && !hasConsumedInitialPrompt && !isAgentRunning) {
-      setHasConsumedInitialPrompt(true);
-      // Small delay to let the UI mount
-      const timer = setTimeout(() => {
-        handleAgentRun(initialPrompt);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialPrompt, hasConsumedInitialPrompt]);
-
   // Run Agent mode
-  const handleAgentRun = async (overridePrompt?: string) => {
+  const handleAgentRun = useCallback(async (overridePrompt?: string) => {
     const promptText = overridePrompt || input.trim();
     if (!promptText || isAgentRunning) return;
     
@@ -182,8 +169,20 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
       stopAgent();
       setStreamingContent('');
     }
-  };
-  
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAgentRunning, files, projectId, selectedModel]);
+
+  // Auto-send initial prompt from landing page
+  useEffect(() => {
+    if (initialPrompt && !hasConsumedInitialPrompt && !isAgentRunning) {
+      setHasConsumedInitialPrompt(true);
+      const timer = setTimeout(() => {
+        handleAgentRun(initialPrompt);
+      }, 600);
+      return () => clearTimeout(timer);
+    }
+  }, [initialPrompt, hasConsumedInitialPrompt, isAgentRunning, handleAgentRun]);
+
   const handleSend = async () => {
     await handleAgentRun();
   };

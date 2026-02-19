@@ -200,11 +200,17 @@ export default function EditorPage() {
   }, []);
   
   if (loading) {
+    const hasPending = typeof window !== 'undefined' && sessionStorage.getItem('rork_pending_prompt');
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-muted-foreground" />
-          <p className="text-muted-foreground">Loading project...</p>
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-white" />
+          <p className="text-lg font-medium text-white">
+            {hasPending ? 'Setting up workspace...' : 'Loading project...'}
+          </p>
+          {hasPending && (
+            <p className="mt-2 text-sm text-muted-foreground">AI will start building your app in a moment</p>
+          )}
         </div>
       </div>
     );
