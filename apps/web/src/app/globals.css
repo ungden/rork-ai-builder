@@ -1,39 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap');
-@import "tailwindcss";
 
-@source "../**/*.{ts,tsx}";
-@source "../../**/*.{ts,tsx}";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-  --color-background: #07080a;
-  --color-foreground: #f3f4f6;
-  --color-border: #20232b;
-  --color-muted: #0f1116;
-  --color-muted-foreground: #9ca3af;
-  --color-primary: #f3f4f6;
-  --color-primary-foreground: #080a0e;
-  --color-secondary: #141824;
-  --color-secondary-foreground: #f3f4f6;
-  --color-accent: #1a2030;
-  --color-accent-foreground: #f3f4f6;
-  --color-destructive: #ef4444;
-  --color-destructive-foreground: #ffffff;
-  --color-card: #0d1017;
-  --color-card-foreground: #f3f4f6;
+/* ── Base reset ──────────────────────────────────────── */
 
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'JetBrains Mono', Menlo, monospace;
-
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 18px;
-  --radius-2xl: 24px;
-}
-
-@variant dark (&:where(.dark, .dark *));
-
-*,:before,:after {
+*,
+:before,
+:after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -43,7 +18,7 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  background: #0b0b0e;
+  background: #07080a;
   color: #f3f4f6;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -59,6 +34,8 @@ a {
   outline: 2px solid #3b82f6;
   outline-offset: 2px;
 }
+
+/* ── Custom scrollbar ────────────────────────────────── */
 
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
@@ -78,16 +55,23 @@ a {
   background: #3c4658;
 }
 
+/* ── Monaco editor ───────────────────────────────────── */
+
 .monaco-editor {
   --vscode-editor-background: #0d1017 !important;
 }
+
+/* ── Chat markdown ───────────────────────────────────── */
 
 .chat-markdown p { margin-bottom: 0.5em; }
 .chat-markdown p:last-child { margin-bottom: 0; }
 .chat-markdown strong { color: #f3f4f6; font-weight: 600; }
 .chat-markdown em { color: #cbd5e1; }
-.chat-markdown h1,.chat-markdown h2,.chat-markdown h3 { font-weight: 600; color: #f3f4f6; margin-top: 0.75em; margin-bottom: 0.25em; }
-.chat-markdown ul,.chat-markdown ol { padding-left: 1.25em; margin-bottom: 0.5em; }
+.chat-markdown h1,
+.chat-markdown h2,
+.chat-markdown h3 { font-weight: 600; color: #f3f4f6; margin-top: 0.75em; margin-bottom: 0.25em; }
+.chat-markdown ul,
+.chat-markdown ol { padding-left: 1.25em; margin-bottom: 0.5em; }
 .chat-markdown li { margin-bottom: 0.2em; }
 .chat-markdown code { background: #141824; padding: 0.1em 0.35em; border-radius: 4px; font-size: 0.875em; color: #a5b4fc; font-family: 'IBM Plex Mono', monospace; }
 .chat-markdown pre { background: #0d1017; border: 1px solid #20232b; border-radius: 8px; padding: 0.75em; margin: 0.5em 0; overflow-x: auto; }
