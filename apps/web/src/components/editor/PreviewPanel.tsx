@@ -190,6 +190,7 @@ import 'expo-router/entry';
     }
     earlyMessagesRef.current = [];
     transportStartedRef.current = false;
+    hadRealFilesRef.current = false;
 
     // Early listener: capture CONNECT messages from the web player iframe
     // before the Snack transport is ready.
@@ -272,16 +273,51 @@ import 'expo-router/entry';
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Update files reactively
+  // Track whether snackFiles had real content on previous render.
+  // Used to detect the transition from empty → has files (e.g. page reload after generation).
+  const hadRealFilesRef = useRef(false);
+
+  // Update files reactively — also force a code-push if transport is already up
   useEffect(() => {
-    if (snackRef.current) {
-      snackRef.current.updateFiles(snackFiles);
+    if (!snackRef.current) return;
+    snackRef.current.updateFiles(snackFiles);
+
+    const hasExpoRouterFiles = Object.keys(snackFiles).some(
+      (p) => p.startsWith('app/') && (p.endsWith('.tsx') || p.endsWith('.js') || p.endsWith('.ts'))
+    );
+
+    // Transition: empty → has real files while transport already running
+    // (happens on reload: files load from DB after iframe is already connected)
+    if (hasExpoRouterFiles && !hadRealFilesRef.current && transportStartedRef.current) {
+      hadRealFilesRef.current = true;
+      // Force a fresh connection cycle so the web player gets the new files
+      transportStartedRef.current = false;
+      earlyMessagesRef.current = [];
+      if (iframeElRef.current?.contentWindow) {
+        try { iframeElRef.current.contentWindow.location.reload(); } catch { /* cross-origin */ }
+      }
+      return;
+    }
+
+    if (hasExpoRouterFiles) hadRealFilesRef.current = true;
+
+    // If transport is already started and files updated, push code changes
+    if (transportStartedRef.current) {
+      try {
+        // @ts-ignore — sendCodeChanges is public but not in type stubs
+        snackRef.current.sendCodeChanges?.();
+      } catch { /* ignore */ }
     }
   }, [snackFiles]);
 
   useEffect(() => {
-    if (snackRef.current) {
-      snackRef.current.updateDependencies(dependencies);
+    if (!snackRef.current) return;
+    snackRef.current.updateDependencies(dependencies);
+    if (transportStartedRef.current) {
+      try {
+        // @ts-ignore
+        snackRef.current.sendCodeChanges?.();
+      } catch { /* ignore */ }
     }
   }, [dependencies]);
 
