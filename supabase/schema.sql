@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS messages (
 -- User settings table
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-  preferred_model TEXT DEFAULT 'claude',
+  preferred_model TEXT DEFAULT 'gemini',
   github_token TEXT,
   expo_token TEXT,
   theme TEXT DEFAULT 'dark',
@@ -133,7 +133,7 @@ CREATE OR REPLACE FUNCTION handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.user_settings (user_id, preferred_model, theme)
-  VALUES (NEW.id, 'claude', 'dark')
+  VALUES (NEW.id, 'gemini', 'dark')
   ON CONFLICT (user_id) DO NOTHING;
   RETURN NEW;
 END;

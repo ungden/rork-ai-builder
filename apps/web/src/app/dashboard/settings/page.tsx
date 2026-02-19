@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import { 
   Settings, 
   Key, 
@@ -9,16 +10,15 @@ import {
   Check, 
   X, 
   Loader2,
-  Moon,
-  Sun,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  ChevronLeft,
 } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
 interface UserSettings {
   preferred_model: 'claude' | 'gemini';
-  theme: 'dark' | 'light';
+  theme: 'dark';
   github_connected: boolean;
   expo_connected: boolean;
 }
@@ -66,14 +66,6 @@ export default function SettingsPage() {
       }
       
       setSettings(data.settings);
-
-      // Apply theme to DOM immediately
-      if (updates.theme) {
-        const html = document.documentElement;
-        html.classList.toggle('dark', updates.theme === 'dark');
-        html.classList.toggle('light', updates.theme === 'light');
-      }
-
       showToast('Settings saved', 'success');
     } catch (error) {
       showToast('Failed to save settings', 'error');
@@ -81,15 +73,6 @@ export default function SettingsPage() {
       setSaving(false);
     }
   };
-
-  // Apply saved theme on mount
-  useEffect(() => {
-    if (settings?.theme) {
-      const html = document.documentElement;
-      html.classList.toggle('dark', settings.theme === 'dark');
-      html.classList.toggle('light', settings.theme === 'light');
-    }
-  }, [settings?.theme]);
 
   const disconnectIntegration = async (integration: 'github' | 'expo') => {
     setSaving(true);
@@ -145,11 +128,18 @@ export default function SettingsPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-8">
       <div>
+        <Link
+          href="/dashboard"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Dashboard
+        </Link>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Settings className="w-6 h-6" />
           Settings
         </h1>
-        <p className="text-muted-foreground">Manage your preferences and integrations</p>
+        <p className="text-muted-foreground mt-1">Manage your preferences and integrations</p>
       </div>
 
       {/* AI Model Preference */}
@@ -187,45 +177,6 @@ export default function SettingsPage() {
           >
             <div className="font-medium">Gemini</div>
             <div className="text-sm text-muted-foreground">by Google</div>
-          </button>
-        </div>
-      </section>
-
-      {/* Theme Preference */}
-      <section className="bg-muted border border-border rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Moon className="w-5 h-5 text-blue-400" />
-          <h2 className="text-lg font-semibold">Appearance</h2>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Customize how the app looks
-        </p>
-        
-        <div className="flex gap-3">
-          <button
-            onClick={() => updateSettings({ theme: 'dark' })}
-            className={`flex-1 p-4 rounded-lg border transition-all ${
-              settings?.theme === 'dark'
-                ? 'border-white bg-white/10'
-                : 'border-border hover:border-accent'
-            }`}
-            disabled={saving}
-          >
-            <Moon className="w-5 h-5 mb-2" />
-            <div className="font-medium">Dark</div>
-          </button>
-          
-          <button
-            onClick={() => updateSettings({ theme: 'light' })}
-            className={`flex-1 p-4 rounded-lg border transition-all ${
-              settings?.theme === 'light'
-                ? 'border-yellow-500 bg-yellow-500/10'
-                : 'border-border hover:border-accent'
-            }`}
-            disabled={saving}
-          >
-            <Sun className="w-5 h-5 mb-2" />
-            <div className="font-medium">Light</div>
           </button>
         </div>
       </section>
@@ -379,7 +330,7 @@ export default function SettingsPage() {
           <h2 className="text-lg font-semibold">API Keys</h2>
         </div>
         
-        <div className="bg-background/50 p-4 rounded-lg border border-border">
+        <div className="bg-secondary p-4 rounded-lg border border-border">
           <p className="text-sm text-muted-foreground">
             AI model API keys (Claude, Gemini) are configured on the server side. 
             Contact your administrator if you need to update them.

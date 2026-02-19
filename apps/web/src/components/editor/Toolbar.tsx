@@ -145,19 +145,19 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
   
   return (
     <>
-      <div className="h-14 border-b border-[#27272a] flex items-center px-4 bg-[#0a0a0a] relative">
+      <div className="h-14 border-b border-border flex items-center px-4 bg-background relative">
         {/* Left Side */}
         <div className="flex items-center gap-3">
           {/* Back arrow */}
           <Link 
             href="/dashboard"
-            className="p-1.5 hover:bg-[#27272a] rounded-lg text-gray-400 hover:text-white transition-colors"
+            className="p-1.5 hover:bg-accent rounded-lg text-muted-foreground hover:text-foreground transition-colors"
           >
             <ChevronLeft size={20} />
           </Link>
           
           {/* Project Name + Lock + Dropdown */}
-          <button className="flex items-center gap-2 hover:bg-[#27272a] px-2.5 py-1.5 rounded-lg transition-colors max-w-[200px]">
+          <button           className="flex items-center gap-2 hover:bg-accent px-2.5 py-1.5 rounded-lg transition-colors max-w-[200px]">
             <span className="font-bold text-white truncate text-[15px]">
               {projectName || 'Untitled Project'}
             </span>
@@ -168,13 +168,13 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
         
         {/* Center - Code / Preview pill toggle */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <div className="flex items-center bg-[#18181b] rounded-lg p-1 border border-[#27272a]">
+          <div className="flex items-center bg-secondary rounded-lg p-1 border border-border">
             <button 
               onClick={() => onViewModeChange?.('code')}
               className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'code' 
-                  ? 'bg-[#27272a] text-white shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-accent text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Code size={14} />
@@ -184,8 +184,8 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
               onClick={() => onViewModeChange?.('preview')}
               className={`flex items-center gap-2 px-4 py-1.5 rounded-md text-sm font-medium transition-all ${
                 viewMode === 'preview' 
-                  ? 'bg-[#27272a] text-white shadow-sm' 
-                  : 'text-gray-500 hover:text-gray-300'
+                  ? 'bg-accent text-foreground shadow-sm' 
+                  : 'text-muted-foreground hover:text-foreground'
               }`}
             >
               <Eye size={14} />
@@ -220,7 +220,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
           <div className="relative">
             <button 
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className="p-2 hover:bg-[#27272a] rounded-lg text-gray-400 hover:text-white transition-colors"
+              className="p-2 hover:bg-accent rounded-lg text-muted-foreground hover:text-foreground transition-colors"
             >
               <MoreHorizontal size={20} />
             </button>
@@ -228,29 +228,29 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
             {showMoreMenu && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMoreMenu(false)} />
-                <div className="absolute right-0 top-full mt-2 w-56 bg-[#18181b] border border-[#27272a] rounded-xl shadow-2xl z-50 py-1.5 overflow-hidden">
+                <div className="absolute right-0 top-full mt-2 w-56 bg-secondary border border-border rounded-xl shadow-2xl z-50 py-1.5 overflow-hidden">
                   <button
                     onClick={() => { handleExport(); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:bg-accent transition-colors"
                   >
                     <Download size={16} /> Download ZIP
                   </button>
                   <button
                     onClick={() => { setShowGitHubModal(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:bg-accent transition-colors"
                   >
                     <Github size={16} /> Push to GitHub
                   </button>
                   <button
                     onClick={() => { setShowBuildModal(true); setShowMoreMenu(false); }}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:bg-accent transition-colors"
                   >
                     <Smartphone size={16} /> Build for Mobile
                   </button>
-                  <div className="h-px bg-[#27272a] my-1" />
+                  <div className="h-px bg-border my-1" />
                   <Link
                     href="/dashboard/settings"
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-[#27272a] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-foreground/70 hover:bg-accent transition-colors"
                     onClick={() => setShowMoreMenu(false)}
                   >
                     Settings
@@ -270,15 +270,15 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
       {/* GitHub Modal */}
       {showGitHubModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-[#27272a] rounded-xl w-full max-w-md p-6 shadow-2xl">
+          <div className="bg-background border border-border rounded-xl w-full max-w-md p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Github size={20} />
                 Push to GitHub
               </h2>
               <button 
                 onClick={() => { setShowGitHubModal(false); setGitHubResult(null); }}
-                className="p-1 hover:bg-[#27272a] rounded"
+                className="p-1 hover:bg-accent rounded"
               >
                 <X size={18} className="text-gray-400" />
               </button>
@@ -296,10 +296,10 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                     href={gitHubResult.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 bg-[#18181b] border border-[#27272a] rounded-lg hover:border-[#3f3f46] transition-colors"
+                    className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors"
                   >
-                    <span className="text-sm text-gray-300">View Repository</span>
-                    <ExternalLink size={14} className="text-gray-500" />
+                    <span className="text-sm text-foreground/70">View Repository</span>
+                    <ExternalLink size={14} className="text-muted-foreground" />
                   </a>
                   
                   {gitHubResult.commitUrl && (
@@ -307,40 +307,40 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                       href={gitHubResult.commitUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 bg-[#18181b] border border-[#27272a] rounded-lg hover:border-[#3f3f46] transition-colors"
+                      className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors"
                     >
-                      <span className="text-sm text-gray-300">View Commit</span>
-                      <ExternalLink size={14} className="text-gray-500" />
+                      <span className="text-sm text-foreground/70">View Commit</span>
+                      <ExternalLink size={14} className="text-muted-foreground" />
                     </a>
                   )}
                 </div>
                 
                 <button
                   onClick={() => { setShowGitHubModal(false); setGitHubResult(null); }}
-                  className="w-full py-2 bg-[#27272a] text-white rounded-lg text-sm font-medium hover:bg-[#3f3f46] transition-colors"
+                  className="w-full py-2 bg-accent text-foreground rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors"
                 >
                   Done
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   This will create or update a GitHub repository with your project files.
                 </p>
                 
-                <div className="p-3 bg-[#18181b] border border-[#27272a] rounded-lg">
-                  <p className="text-sm text-gray-300">
-                    <span className="text-gray-500">Repository:</span> {projectName || 'rork-app'}
+                <div className="p-3 bg-secondary border border-border rounded-lg">
+                  <p className="text-sm text-foreground/70">
+                    <span className="text-muted-foreground">Repository:</span> {projectName || 'rork-app'}
                   </p>
-                  <p className="text-sm text-gray-300 mt-1">
-                    <span className="text-gray-500">Files:</span> {Object.keys(files).length} files
+                  <p className="text-sm text-foreground/70 mt-1">
+                    <span className="text-muted-foreground">Files:</span> {Object.keys(files).length} files
                   </p>
                 </div>
                 
                 <div className="flex gap-3">
                   <button
                     onClick={() => setShowGitHubModal(false)}
-                    className="flex-1 py-2 border border-[#27272a] text-gray-300 rounded-lg text-sm font-medium hover:bg-[#27272a] transition-colors"
+                    className="flex-1 py-2 border border-border text-foreground/70 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
                   >
                     Cancel
                   </button>
@@ -371,15 +371,15 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
       {/* Build Modal */}
       {showBuildModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-          <div className="bg-[#0a0a0a] border border-[#27272a] rounded-xl w-full max-w-lg p-6 shadow-2xl">
+          <div className="bg-background border border-border rounded-xl w-full max-w-lg p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+              <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Smartphone size={20} />
                 Build for Mobile
               </h2>
               <button 
                 onClick={() => { setShowBuildModal(false); setBuildResult(null); }}
-                className="p-1 hover:bg-[#27272a] rounded"
+                className="p-1 hover:bg-accent rounded"
               >
                 <X size={18} className="text-gray-400" />
               </button>
@@ -392,15 +392,15 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   <span className="text-green-400 font-medium">Build configuration generated!</span>
                 </div>
                 
-                <div className="p-3 bg-[#18181b] border border-[#27272a] rounded-lg">
-                  <p className="text-xs text-gray-500 mb-2">Run this command:</p>
+                <div className="p-3 bg-secondary border border-border rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2">Run this command:</p>
                   <code className="text-sm text-green-400 font-mono">{buildResult.buildCommand}</code>
                 </div>
                 
                 {buildResult.instructions && (
                   <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-300">Instructions:</p>
-                    <ol className="text-sm text-gray-400 space-y-1">
+                    <p className="text-sm font-medium text-foreground/70">Instructions:</p>
+                    <ol className="text-sm text-muted-foreground space-y-1">
                       {buildResult.instructions.map((instruction, i) => (
                         <li key={i}>{instruction}</li>
                       ))}
@@ -410,14 +410,14 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                 
                 <button
                   onClick={() => { setShowBuildModal(false); setBuildResult(null); }}
-                  className="w-full py-2 bg-[#27272a] text-white rounded-lg text-sm font-medium hover:bg-[#3f3f46] transition-colors"
+                  className="w-full py-2 bg-accent text-foreground rounded-lg text-sm font-medium hover:bg-accent/80 transition-colors"
                 >
                   Done
                 </button>
               </div>
             ) : (
               <div className="space-y-4">
-                <p className="text-sm text-gray-400">
+                <p className="text-sm text-muted-foreground">
                   Generate a build for iOS, Android, or both platforms using Expo EAS.
                 </p>
                 
@@ -425,31 +425,31 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   <button
                     onClick={() => handleBuild('ios')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-[#18181b] border border-[#27272a] rounded-lg hover:border-[#3f3f46] transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">🍎</div>
-                    <p className="text-sm font-medium text-white">iOS</p>
-                    <p className="text-xs text-gray-500">iPhone & iPad</p>
+                    <p className="text-sm font-medium">iOS</p>
+                    <p className="text-xs text-muted-foreground">iPhone & iPad</p>
                   </button>
                   
                   <button
                     onClick={() => handleBuild('android')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-[#18181b] border border-[#27272a] rounded-lg hover:border-[#3f3f46] transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">🤖</div>
-                    <p className="text-sm font-medium text-white">Android</p>
-                    <p className="text-xs text-gray-500">Phone & Tablet</p>
+                    <p className="text-sm font-medium">Android</p>
+                    <p className="text-xs text-muted-foreground">Phone & Tablet</p>
                   </button>
                   
                   <button
                     onClick={() => handleBuild('all')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-[#18181b] border border-[#27272a] rounded-lg hover:border-[#3f3f46] transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">📱</div>
-                    <p className="text-sm font-medium text-white">Both</p>
-                    <p className="text-xs text-gray-500">iOS & Android</p>
+                    <p className="text-sm font-medium">Both</p>
+                    <p className="text-xs text-muted-foreground">iOS & Android</p>
                   </button>
                 </div>
                 
@@ -468,7 +468,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                 
                 <button
                   onClick={() => setShowBuildModal(false)}
-                  className="w-full py-2 border border-[#27272a] text-gray-300 rounded-lg text-sm font-medium hover:bg-[#27272a] transition-colors"
+                  className="w-full py-2 border border-border text-foreground/70 rounded-lg text-sm font-medium hover:bg-accent transition-colors"
                 >
                   Cancel
                 </button>
