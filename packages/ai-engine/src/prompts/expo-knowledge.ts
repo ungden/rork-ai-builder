@@ -351,21 +351,48 @@ function useStoredState<T>(key: string, defaultValue: T) {
 \`\`\``;
 
 // Native controls (Switch, TextInput, Haptics) are covered in components.ts — no duplication needed
-export const EXPO_CONTROLS = `## Snack Package Allowlist
+export const EXPO_CONTROLS = `## Snack Package Allowlist (STRICT — SDK 54)
 
-These packages are available in Expo Snack SDK 54. Only import from this list:
-- react, react-native (core)
-- expo, expo-router, expo-status-bar
-- expo-image, expo-blur, expo-linear-gradient
-- expo-av (Audio, Video, ResizeMode)
-- expo-camera (CameraView, useCameraPermissions)
-- expo-image-picker
-- expo-haptics
-- expo-font
-- @expo/vector-icons (Ionicons, MaterialIcons, FontAwesome, Feather, MaterialCommunityIcons)
-- react-native-safe-area-context
-- react-native-reanimated
-- react-native-gesture-handler
-- @react-native-async-storage/async-storage
+ONLY use packages from this exact list. Using any other package will cause a 500 error or CORS failure in the Snack web player.
 
-Do NOT import packages outside this list unless the user explicitly requests them.`;
+### Allowed packages
+| Package | Import example |
+|---------|---------------|
+| react, react-native | core — always available |
+| expo, expo-router, expo-status-bar | \`import { Stack } from 'expo-router'\` |
+| expo-image | \`import { Image } from 'expo-image'\` — use version **~1.13** (NOT 3.x) |
+| expo-blur | \`import { BlurView } from 'expo-blur'\` |
+| expo-linear-gradient | \`import { LinearGradient } from 'expo-linear-gradient'\` |
+| expo-av | \`import { Audio, Video } from 'expo-av'\` |
+| expo-camera | \`import { CameraView } from 'expo-camera'\` |
+| expo-image-picker | \`import * as ImagePicker from 'expo-image-picker'\` |
+| expo-haptics | \`import * as Haptics from 'expo-haptics'\` |
+| expo-font | \`import * as Font from 'expo-font'\` |
+| @expo/vector-icons | \`import { Ionicons } from '@expo/vector-icons'\` |
+| react-native-safe-area-context | \`import { useSafeAreaInsets } from 'react-native-safe-area-context'\` |
+| react-native-reanimated | \`import Animated from 'react-native-reanimated'\` |
+| react-native-gesture-handler | \`import { GestureDetector } from 'react-native-gesture-handler'\` |
+| @react-native-async-storage/async-storage | \`import AsyncStorage from '@react-native-async-storage/async-storage'\` |
+
+### BANNED packages — DO NOT USE (causes CORS/500 errors in Snack)
+- **lucide-react-native** — use \`@expo/vector-icons\` Ionicons instead
+- **lucide-react** — web only, not React Native
+- **@tamagui/core** or any tamagui package
+- **nativewind** or **tailwind** — use StyleSheet.create
+- **expo-image@3.x** — only ~1.13 is in SDK 54 Snack
+- **expo-symbols** or **SymbolView**
+- **expo-audio** or **expo-video** (standalone) — use **expo-av**
+- **react-native-svg** — not bundled in Snack SDK 54
+- **react-native-maps** — requires native build
+- **@shopify/flash-list** — not in Snack
+- Any icon library except **@expo/vector-icons**
+
+### Icons: ALWAYS use Ionicons from @expo/vector-icons
+\`\`\`typescript
+import { Ionicons } from '@expo/vector-icons';
+// Use: heart, heart-outline, star, star-outline, person, person-outline,
+//      home, home-outline, search, settings, camera, image, etc.
+<Ionicons name="heart" size={24} color="#FF6B6B" />
+\`\`\`
+
+Do NOT import packages outside the allowed list above.`;

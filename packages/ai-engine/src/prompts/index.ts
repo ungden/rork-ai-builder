@@ -116,18 +116,22 @@ When the user describes what they want to build:
 
 ${EXPO_SDK54_RULES}
 
-## DO NOT USE (SDK 54 incompatible)
-- expo-symbols or SymbolView (use @expo/vector-icons Ionicons)
-- expo-glass-effect or GlassView (use expo-blur BlurView)
-- expo-audio or expo-video (use expo-av)
-- process.env.EXPO_OS (use Platform.OS)
-- React.use (use React.useContext)
-- CSS boxShadow (use shadowColor/shadowOffset/elevation)
-- NativeTabs from expo-router/unstable-native-tabs (use Tabs from expo-router)
-- import from 'expo-router/stack' (use import from 'expo-router')
+## DO NOT USE (causes 500 / CORS errors in Expo Snack SDK 54)
+- **lucide-react-native** or **lucide-react** — use @expo/vector-icons Ionicons
+- expo-symbols or SymbolView — use @expo/vector-icons Ionicons
+- expo-glass-effect or GlassView — use expo-blur BlurView
+- expo-audio or expo-video (standalone) — use expo-av
+- expo-image@3.x — expo-image ~1.13 only
+- react-native-svg — not bundled in Snack
+- nativewind / tailwind — use StyleSheet.create
+- process.env.EXPO_OS — use Platform.OS
+- React.use — use React.useContext
+- CSS boxShadow — use shadowColor/shadowOffset/elevation
+- NativeTabs from expo-router/unstable-native-tabs — use Tabs from expo-router
+- import from 'expo-router/stack' — use import from 'expo-router'
 - Link.Preview, Link.Menu, Link.Trigger (not in SDK 54)
 - formSheet presentation or sheetAllowedDetents (not in SDK 54)
-- PlatformColor() (use hex colors)
+- PlatformColor() — use hex colors
 - Web HTML elements (<div>, <span>, <img>)
 - Co-locate components in app/ directory`;
 
