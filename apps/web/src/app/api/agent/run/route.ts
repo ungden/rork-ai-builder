@@ -79,7 +79,7 @@ export async function POST(request: NextRequest) {
         // Get API key for the chosen model
         const isGemini = model === 'gemini';
         const apiKey = isGemini
-          ? process.env.GOOGLE_AI_API_KEY
+          ? process.env.GEMINI_API_KEY
           : process.env.ANTHROPIC_API_KEY;
         if (!apiKey) {
           controller.enqueue(encoder.encode(
