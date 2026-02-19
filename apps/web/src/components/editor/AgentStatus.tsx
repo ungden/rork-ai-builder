@@ -19,8 +19,8 @@ import type { AgentPhase } from '@ai-engine/core';
 
 const PHASE_INFO: Record<AgentPhase, { label: string; icon: ReactNode; color: string }> = {
   idle: { label: 'Ready', icon: <Sparkles className="w-4 h-4" />, color: 'text-gray-400' },
-  planning: { label: 'Planning', icon: <Lightbulb className="w-4 h-4" />, color: 'text-yellow-400' },
-  coding: { label: 'Coding', icon: <FileCode2 className="w-4 h-4" />, color: 'text-blue-400' },
+  planning: { label: 'Plan Mode', icon: <Lightbulb className="w-4 h-4" />, color: 'text-yellow-400' },
+  coding: { label: 'Build Mode', icon: <FileCode2 className="w-4 h-4" />, color: 'text-blue-400' },
   testing: { label: 'Testing', icon: <TestTube className="w-4 h-4" />, color: 'text-purple-400' },
   debugging: { label: 'Debugging', icon: <Bug className="w-4 h-4" />, color: 'text-orange-400' },
   complete: { label: 'Complete', icon: <CheckCircle2 className="w-4 h-4" />, color: 'text-green-400' },
@@ -43,6 +43,7 @@ export function AgentStatus() {
   } = useAgentStore();
   
   const phaseInfo = PHASE_INFO[phase];
+  const currentFileName = planProgress?.currentFile?.split('/').pop() || null;
   const createdCount = Object.values(files).filter(f => 
     f.status === 'created' || f.status === 'updated'
   ).length;
@@ -68,9 +69,14 @@ export function AgentStatus() {
           <span className={`text-sm font-medium ${phaseInfo.color}`}>
             {phaseInfo.label}
           </span>
+          {(phase === 'planning' || phase === 'coding') && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#27272a] text-gray-400 uppercase tracking-wide">
+              {phase === 'planning' ? 'planning' : 'building'}
+            </span>
+          )}
           {isRunning && planProgress && planProgress.totalFiles > 0 && (
             <span className="text-xs text-gray-500">
-              ({planProgress.completedFiles}/{planProgress.totalFiles}: {planProgress.currentFile.split('/').pop()})
+              ({planProgress.completedFiles}/{planProgress.totalFiles}: {currentFileName})
             </span>
           )}
           {isRunning && !planProgress && currentTool && (
@@ -105,6 +111,23 @@ export function AgentStatus() {
       {/* Expanded content */}
       {expanded && (
         <div className="p-3 border-t border-[#27272a] max-h-64 overflow-y-auto custom-scrollbar">
+          {(phase === 'planning' || (phase === 'coding' && !planProgress)) && (
+            <div className="mb-3 rounded border border-[#2f2f35] bg-[#121215] p-2 text-xs text-gray-400">
+              {phase === 'planning'
+                ? 'Plan mode: analyzing prompt and preparing file tree.'
+                : 'Build mode: waiting for first file write event...'}
+            </div>
+          )}
+
+          {phase === 'coding' && planProgress && (
+            <div className="mb-3 rounded border border-blue-500/20 bg-blue-500/5 p-2">
+              <div className="text-xs text-blue-300 font-medium">
+                Writing file {planProgress.completedFiles}/{planProgress.totalFiles}
+              </div>
+              <div className="text-[11px] text-blue-200/80 mt-1 truncate">{planProgress.currentFile}</div>
+            </div>
+          )}
+
           {/* Plan info */}
           {plan && (
             <div className="mb-3 pb-3 border-b border-[#27272a]">
@@ -192,5 +215,4 @@ export function AgentStatus() {
     </div>
   );
 }
-
 

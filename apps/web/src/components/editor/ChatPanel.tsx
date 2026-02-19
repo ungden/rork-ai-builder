@@ -27,7 +27,6 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
   const [input, setInput] = useState('');
   const [expandedFiles, setExpandedFiles] = useState<Record<string, boolean>>({}); // Per-message file list collapse
   const [showErrorDetails, setShowErrorDetails] = useState(false); // Error details expand
-  const initialPromptConsumedRef = useRef(false);
   const handleAgentRunRef = useRef<(prompt?: string) => Promise<void>>(undefined);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -190,15 +189,14 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
   handleAgentRunRef.current = handleAgentRun;
 
   // Auto-send initial prompt from landing page.
-  // Uses a ref so the timeout is never cancelled by handleAgentRun reference changes.
   useEffect(() => {
-    if (initialPrompt && !initialPromptConsumedRef.current) {
-      initialPromptConsumedRef.current = true;
-      const timer = setTimeout(() => {
-        handleAgentRunRef.current?.(initialPrompt);
-      }, 800);
-      return () => clearTimeout(timer);
-    }
+    if (!initialPrompt) return;
+
+    const timer = setTimeout(() => {
+      handleAgentRunRef.current?.(initialPrompt);
+    }, 800);
+
+    return () => clearTimeout(timer);
   }, [initialPrompt]);
 
   const handleSend = async () => {
