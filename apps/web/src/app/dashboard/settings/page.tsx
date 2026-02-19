@@ -1,19 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { 
-  Settings, 
-  Key, 
-  Github, 
-  Smartphone, 
-  Check, 
-  X, 
-  Loader2,
-  Sparkles,
-  AlertCircle,
-  ChevronLeft,
-} from 'lucide-react';
+import { Settings, Key, Github, Smartphone, Check, X, Loader2, Sparkles, AlertCircle, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/components/ui/Toast';
 
 interface UserSettings {
@@ -21,6 +11,18 @@ interface UserSettings {
   theme: 'dark';
   github_connected: boolean;
   expo_connected: boolean;
+}
+
+function Section({ title, icon, children }: { title: string; icon: ReactNode; children: ReactNode }) {
+  return (
+    <section className="rounded-2xl border border-border bg-card p-6">
+      <div className="mb-4 flex items-center gap-2">
+        {icon}
+        <h2 className="text-lg font-semibold">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
 }
 
 export default function SettingsPage() {
@@ -34,22 +36,20 @@ export default function SettingsPage() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    fetchSettings();
-  }, []);
-
-  const fetchSettings = async () => {
-    try {
-      const response = await fetch('/api/settings');
-      const data = await response.json();
-      if (data.settings) {
-        setSettings(data.settings);
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/settings');
+        const data = await response.json();
+        if (data.settings) setSettings(data.settings);
+      } catch {
+        showToast('Failed to load settings', 'error');
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      showToast('Failed to load settings', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+
+    fetchSettings();
+  }, [showToast]);
 
   const updateSettings = async (updates: Partial<UserSettings & { github_token?: string; expo_token?: string }>) => {
     setSaving(true);
@@ -59,15 +59,11 @@ export default function SettingsPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      
       const data = await response.json();
-      if (data.error) {
-        throw new Error(data.error);
-      }
-      
+      if (data.error) throw new Error(data.error);
       setSettings(data.settings);
       showToast('Settings saved', 'success');
-    } catch (error) {
+    } catch {
       showToast('Failed to save settings', 'error');
     } finally {
       setSaving(false);
@@ -77,20 +73,11 @@ export default function SettingsPage() {
   const disconnectIntegration = async (integration: 'github' | 'expo') => {
     setSaving(true);
     try {
-      const response = await fetch(`/api/settings?integration=${integration}`, {
-        method: 'DELETE',
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to disconnect');
-      }
-      
-      setSettings(prev => prev ? {
-        ...prev,
-        [`${integration}_connected`]: false
-      } : null);
+      const response = await fetch(`/api/settings?integration=${integration}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error('Failed to disconnect');
+      setSettings((prev) => (prev ? { ...prev, [`${integration}_connected`]: false } as UserSettings : null));
       showToast(`${integration === 'github' ? 'GitHub' : 'Expo'} disconnected`, 'success');
-    } catch (error) {
+    } catch {
       showToast('Failed to disconnect', 'error');
     } finally {
       setSaving(false);
@@ -119,224 +106,141 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      <div className="flex h-64 items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
-        <Link
-          href="/dashboard"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Dashboard
+        <Link href="/dashboard" className="mb-5 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <ChevronLeft className="h-4 w-4" />
+          Back to dashboard
         </Link>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Settings className="w-6 h-6" />
+        <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+          <Settings className="h-6 w-6" />
           Settings
         </h1>
-        <p className="text-muted-foreground mt-1">Manage your preferences and integrations</p>
+        <p className="mt-2 text-sm text-muted-foreground">Configure model preferences and integrations for your workspace.</p>
       </div>
 
-      {/* AI Model Preference */}
-      <section className="bg-muted border border-border rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-purple-400" />
-          <h2 className="text-lg font-semibold">AI Model</h2>
-        </div>
-        <p className="text-sm text-muted-foreground">
-          Choose your preferred AI model for code generation
-        </p>
-        
-        <div className="flex gap-3">
+      <Section title="AI Model" icon={<Sparkles className="h-5 w-5 text-violet-300" />}>
+        <p className="mb-4 text-sm text-muted-foreground">Choose which model the code agent should use by default.</p>
+        <div className="grid gap-3 sm:grid-cols-2">
           <button
             onClick={() => updateSettings({ preferred_model: 'claude' })}
-            className={`flex-1 p-4 rounded-lg border transition-all ${
-              settings?.preferred_model === 'claude'
-                ? 'border-purple-500 bg-purple-500/10'
-                : 'border-border hover:border-accent'
-            }`}
             disabled={saving}
+            className={`rounded-xl border px-4 py-4 text-left transition-colors ${
+              settings?.preferred_model === 'claude' ? 'border-violet-400 bg-violet-500/10' : 'border-border bg-secondary hover:bg-accent'
+            }`}
           >
-            <div className="font-medium">Claude</div>
-            <div className="text-sm text-muted-foreground">by Anthropic</div>
+            <p className="font-semibold">Claude</p>
+            <p className="text-sm text-muted-foreground">Anthropic</p>
           </button>
-          
           <button
             onClick={() => updateSettings({ preferred_model: 'gemini' })}
-            className={`flex-1 p-4 rounded-lg border transition-all ${
-              settings?.preferred_model === 'gemini'
-                ? 'border-blue-500 bg-blue-500/10'
-                : 'border-border hover:border-accent'
-            }`}
             disabled={saving}
+            className={`rounded-xl border px-4 py-4 text-left transition-colors ${
+              settings?.preferred_model === 'gemini' ? 'border-sky-400 bg-sky-500/10' : 'border-border bg-secondary hover:bg-accent'
+            }`}
           >
-            <div className="font-medium">Gemini</div>
-            <div className="text-sm text-muted-foreground">by Google</div>
+            <p className="font-semibold">Gemini</p>
+            <p className="text-sm text-muted-foreground">Google</p>
           </button>
         </div>
-      </section>
+      </Section>
 
-      {/* GitHub Integration */}
-      <section className="bg-muted border border-border rounded-xl p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Github className="w-5 h-5" />
-            <h2 className="text-lg font-semibold">GitHub</h2>
+      <Section title="GitHub" icon={<Github className="h-5 w-5" />}>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Sync project files and commits to repositories.</p>
+          <div className={`inline-flex items-center gap-1.5 text-sm ${settings?.github_connected ? 'text-emerald-300' : 'text-muted-foreground'}`}>
+            {settings?.github_connected ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+            {settings?.github_connected ? 'Connected' : 'Not connected'}
           </div>
-          {settings?.github_connected ? (
-            <div className="flex items-center gap-2 text-green-400 text-sm">
-              <Check className="w-4 h-4" />
-              Connected
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <X className="w-4 h-4" />
-              Not connected
-            </div>
-          )}
         </div>
-        
-        <p className="text-sm text-muted-foreground">
-          Connect your GitHub account to sync projects to repositories
-        </p>
-        
+
         {showGithubInput ? (
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="password"
                 value={githubToken}
                 onChange={(e) => setGithubToken(e.target.value)}
-                placeholder="Enter your GitHub personal access token"
-                className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder="GitHub personal access token"
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm outline-none focus:border-zinc-500"
               />
-              <button
-                onClick={handleGithubConnect}
-                disabled={saving}
-                className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+              <button onClick={handleGithubConnect} disabled={saving} className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-zinc-200 disabled:opacity-60">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </button>
-              <button
-                onClick={() => { setShowGithubInput(false); setGithubToken(''); }}
-                className="px-3 py-2 text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => { setShowGithubInput(false); setGithubToken(''); }} className="rounded-xl border border-border px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent">
                 Cancel
               </button>
             </div>
-            <p className="text-xs text-muted-foreground flex items-start gap-1">
-              <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              Create a token at GitHub Settings &gt; Developer settings &gt; Personal access tokens with repo scope
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5" />
+              GitHub Settings &gt; Developer settings &gt; Personal access tokens (repo scope)
             </p>
           </div>
         ) : settings?.github_connected ? (
-          <button
-            onClick={() => disconnectIntegration('github')}
-            disabled={saving}
-            className="px-4 py-2 border border-red-500/50 text-red-400 rounded-lg text-sm hover:bg-red-500/10 disabled:opacity-50"
-          >
+          <button onClick={() => disconnectIntegration('github')} disabled={saving} className="rounded-xl border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 disabled:opacity-60">
             Disconnect
           </button>
         ) : (
-          <button
-            onClick={() => setShowGithubInput(true)}
-            className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100"
-          >
+          <button onClick={() => setShowGithubInput(true)} className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200">
             Connect GitHub
           </button>
         )}
-      </section>
+      </Section>
 
-      {/* Expo Integration */}
-      <section className="bg-muted border border-border rounded-xl p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Smartphone className="w-5 h-5 text-blue-400" />
-            <h2 className="text-lg font-semibold">Expo</h2>
+      <Section title="Expo" icon={<Smartphone className="h-5 w-5 text-sky-300" />}>
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">Enable EAS build and publish actions.</p>
+          <div className={`inline-flex items-center gap-1.5 text-sm ${settings?.expo_connected ? 'text-emerald-300' : 'text-muted-foreground'}`}>
+            {settings?.expo_connected ? <Check className="h-4 w-4" /> : <X className="h-4 w-4" />}
+            {settings?.expo_connected ? 'Connected' : 'Not connected'}
           </div>
-          {settings?.expo_connected ? (
-            <div className="flex items-center gap-2 text-green-400 text-sm">
-              <Check className="w-4 h-4" />
-              Connected
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <X className="w-4 h-4" />
-              Not connected
-            </div>
-          )}
         </div>
-        
-        <p className="text-sm text-muted-foreground">
-          Connect your Expo account to build and publish apps
-        </p>
-        
+
         {showExpoInput ? (
           <div className="space-y-3">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <input
                 type="password"
                 value={expoToken}
                 onChange={(e) => setExpoToken(e.target.value)}
-                placeholder="Enter your Expo access token"
-                className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+                placeholder="Expo access token"
+                className="w-full rounded-xl border border-border bg-secondary px-3 py-2.5 text-sm outline-none focus:border-zinc-500"
               />
-              <button
-                onClick={handleExpoConnect}
-                disabled={saving}
-                className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100 disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save'}
+              <button onClick={handleExpoConnect} disabled={saving} className="rounded-xl bg-white px-4 py-2.5 text-sm font-semibold text-black hover:bg-zinc-200 disabled:opacity-60">
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
               </button>
-              <button
-                onClick={() => { setShowExpoInput(false); setExpoToken(''); }}
-                className="px-3 py-2 text-muted-foreground hover:text-foreground"
-              >
+              <button onClick={() => { setShowExpoInput(false); setExpoToken(''); }} className="rounded-xl border border-border px-4 py-2.5 text-sm text-muted-foreground hover:bg-accent">
                 Cancel
               </button>
             </div>
-            <p className="text-xs text-muted-foreground flex items-start gap-1">
-              <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" />
-              Get your access token at expo.dev &gt; Account Settings &gt; Access Tokens
+            <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5" />
+              expo.dev &gt; Account Settings &gt; Access Tokens
             </p>
           </div>
         ) : settings?.expo_connected ? (
-          <button
-            onClick={() => disconnectIntegration('expo')}
-            disabled={saving}
-            className="px-4 py-2 border border-red-500/50 text-red-400 rounded-lg text-sm hover:bg-red-500/10 disabled:opacity-50"
-          >
+          <button onClick={() => disconnectIntegration('expo')} disabled={saving} className="rounded-xl border border-red-500/40 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10 disabled:opacity-60">
             Disconnect
           </button>
         ) : (
-          <button
-            onClick={() => setShowExpoInput(true)}
-            className="px-4 py-2 bg-white text-black rounded-lg text-sm font-medium hover:bg-gray-100"
-          >
+          <button onClick={() => setShowExpoInput(true)} className="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-black hover:bg-zinc-200">
             Connect Expo
           </button>
         )}
-      </section>
+      </Section>
 
-      {/* API Keys Info */}
-      <section className="bg-muted border border-border rounded-xl p-6 space-y-4">
-        <div className="flex items-center gap-2">
-          <Key className="w-5 h-5 text-yellow-400" />
-          <h2 className="text-lg font-semibold">API Keys</h2>
-        </div>
-        
-        <div className="bg-secondary p-4 rounded-lg border border-border">
-          <p className="text-sm text-muted-foreground">
-            AI model API keys (Claude, Gemini) are configured on the server side. 
-            Contact your administrator if you need to update them.
-          </p>
-        </div>
-      </section>
+      <Section title="API Keys" icon={<Key className="h-5 w-5 text-amber-300" />}>
+        <p className="rounded-xl border border-border bg-secondary p-4 text-sm text-muted-foreground">
+          Model provider keys are configured server-side. Update environment variables in Vercel to rotate API keys.
+        </p>
+      </Section>
     </div>
   );
 }

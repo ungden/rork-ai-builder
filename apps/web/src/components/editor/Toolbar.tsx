@@ -296,7 +296,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                     href={gitHubResult.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors"
+                    className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-zinc-600 transition-colors"
                   >
                     <span className="text-sm text-muted-foreground">View Repository</span>
                     <ExternalLink size={14} className="text-muted-foreground" />
@@ -307,7 +307,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                       href={gitHubResult.commitUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors"
+                      className="flex items-center justify-between p-3 bg-secondary border border-border rounded-lg hover:border-zinc-600 transition-colors"
                     >
                       <span className="text-sm text-muted-foreground">View Commit</span>
                       <ExternalLink size={14} className="text-muted-foreground" />
@@ -425,7 +425,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   <button
                     onClick={() => handleBuild('ios')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-zinc-600 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">🍎</div>
                     <p className="text-sm font-medium">iOS</p>
@@ -435,7 +435,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   <button
                     onClick={() => handleBuild('android')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-zinc-600 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">🤖</div>
                     <p className="text-sm font-medium">Android</p>
@@ -445,7 +445,7 @@ export function Toolbar({ projectId, onSave, onExport, viewMode = 'preview', onV
                   <button
                     onClick={() => handleBuild('all')}
                     disabled={isBuildTriggering}
-                    className="p-4 bg-secondary border border-border rounded-lg hover:border-foreground/20 transition-colors disabled:opacity-50"
+                    className="p-4 bg-secondary border border-border rounded-lg hover:border-zinc-600 transition-colors disabled:opacity-50"
                   >
                     <div className="text-2xl mb-2">📱</div>
                     <p className="text-sm font-medium">Both</p>

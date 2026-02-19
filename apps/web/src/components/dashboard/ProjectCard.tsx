@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Clock, MoreVertical, Trash2, ExternalLink, Loader2 } from 'lucide-react';
+import { Clock3, MoreHorizontal, Trash2, ExternalLink, Loader2 } from 'lucide-react';
 
 interface Project {
   id: string;
@@ -25,18 +25,15 @@ function timeAgo(date: string): string {
   return 'just now';
 }
 
-// Deterministic gradient from project id
 function projectGradient(id: string) {
   const gradients = [
-    'from-blue-500 to-violet-600',
-    'from-emerald-500 to-teal-600',
-    'from-orange-500 to-rose-600',
-    'from-violet-500 to-pink-600',
     'from-cyan-500 to-blue-600',
-    'from-rose-500 to-orange-600',
+    'from-emerald-500 to-teal-600',
+    'from-violet-500 to-indigo-600',
+    'from-orange-500 to-rose-600',
+    'from-fuchsia-500 to-violet-600',
   ];
-  const idx = id.charCodeAt(0) % gradients.length;
-  return gradients[idx];
+  return gradients[id.charCodeAt(0) % gradients.length];
 }
 
 export function ProjectCard({ project }: { project: Project }) {
@@ -50,8 +47,6 @@ export function ProjectCard({ project }: { project: Project }) {
     try {
       const res = await fetch(`/api/projects/${project.id}`, { method: 'DELETE' });
       if (res.ok) router.refresh();
-    } catch (error) {
-      console.error('Delete failed:', error);
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
@@ -63,88 +58,92 @@ export function ProjectCard({ project }: { project: Project }) {
 
   return (
     <>
-      <div className="group relative bg-card border border-border rounded-xl hover:border-foreground/20 transition-all duration-150 overflow-hidden">
+      <article className="group relative overflow-hidden rounded-2xl border border-border bg-card transition-colors hover:bg-accent">
         <Link href={`/editor/${project.id}`} className="block p-5">
-          {/* Icon */}
-          <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${gradient} flex items-center justify-center mb-4 text-white text-sm font-bold select-none`}>
+          <div className={`mb-4 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br ${gradient} text-sm font-semibold text-white`}>
             {project.name.charAt(0).toUpperCase()}
           </div>
 
-          {/* Name */}
-          <h3 className="font-semibold text-sm text-foreground mb-1 truncate leading-snug">
-            {project.name}
-          </h3>
-
-          {/* Description */}
-          <p className="text-xs text-muted-foreground line-clamp-2 mb-4 min-h-[32px] leading-relaxed">
-            {project.description || 'No description'}
+          <h3 className="truncate text-base font-semibold">{project.name}</h3>
+          <p className="mt-2 min-h-[42px] text-sm leading-relaxed text-muted-foreground line-clamp-2">
+            {project.description || 'No description provided yet.'}
           </p>
 
-          {/* Timestamp */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Clock className="w-3 h-3" />
-            <span>{timeAgo(project.updated_at)}</span>
+          <div className="mt-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <Clock3 className="h-3.5 w-3.5" />
+            Updated {timeAgo(project.updated_at)}
           </div>
         </Link>
 
-        {/* Menu trigger */}
         <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowMenu(!showMenu); }}
-          className="absolute top-3.5 right-3.5 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-accent text-muted-foreground hover:text-foreground transition-all"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setShowMenu(!showMenu);
+          }}
+          className="absolute right-3 top-3 rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all hover:bg-secondary hover:text-foreground group-hover:opacity-100"
+          aria-label="Open project menu"
         >
-          <MoreVertical className="w-3.5 h-3.5" />
+          <MoreHorizontal className="h-4 w-4" />
         </button>
 
-        {/* Dropdown */}
         {showMenu && (
           <>
             <div className="fixed inset-0 z-10" onClick={() => setShowMenu(false)} />
-            <div className="absolute top-10 right-3 z-20 bg-background border border-border rounded-lg shadow-lg py-1 min-w-[140px] overflow-hidden animate-fade-in">
+            <div className="absolute right-3 top-11 z-20 min-w-[160px] overflow-hidden rounded-xl border border-border bg-background py-1 shadow-2xl">
               <Link
                 href={`/editor/${project.id}`}
-                className="flex items-center gap-2.5 px-3 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="flex items-center gap-2 px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                 onClick={() => setShowMenu(false)}
               >
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="h-4 w-4" />
                 Open editor
               </Link>
               <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowDeleteConfirm(true); setShowMenu(false); }}
-                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs text-destructive hover:bg-red-500/10 transition-colors"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setShowDeleteConfirm(true);
+                  setShowMenu(false);
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-300 transition-colors hover:bg-red-500/10"
               >
-                <Trash2 className="w-3.5 h-3.5" />
-                Delete
+                <Trash2 className="h-4 w-4" />
+                Delete project
               </button>
             </div>
           </>
         )}
-      </div>
+      </article>
 
-      {/* Delete modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setShowDeleteConfirm(false)}
-          />
-          <div className="relative bg-card border border-border rounded-2xl w-full max-w-sm mx-4 p-6 shadow-2xl animate-slide-up">
-            <h3 className="font-semibold mb-1">Delete project?</h3>
-            <p className="text-sm text-muted-foreground mb-5">
-              &ldquo;{project.name}&rdquo; will be permanently deleted. This cannot be undone.
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div className="absolute inset-0 bg-black/70" onClick={() => setShowDeleteConfirm(false)} />
+          <div className="relative w-full max-w-sm rounded-2xl border border-border bg-card p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold">Delete project?</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              “{project.name}” and all generated files will be permanently removed.
             </p>
-            <div className="flex gap-2">
+            <div className="mt-5 flex gap-2">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 py-2 text-sm border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="flex-1 rounded-xl border border-border py-2 text-sm text-muted-foreground hover:bg-accent"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={isDeleting}
-                className="flex-1 py-2 text-sm bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-xl bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-60"
               >
-                {isDeleting ? <><Loader2 className="w-3.5 h-3.5 animate-spin" />Deleting…</> : 'Delete'}
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Delete'
+                )}
               </button>
             </div>
           </div>

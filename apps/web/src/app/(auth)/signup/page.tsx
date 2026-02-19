@@ -21,14 +21,13 @@ function OAuthButton({ provider, onClick }: { provider: 'google' | 'github'; onC
       </svg>
     ),
   };
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full flex items-center justify-center gap-2.5 px-4 py-2.5 bg-muted border border-border rounded-lg text-sm font-medium hover:bg-accent transition-colors"
-    >
-      {logos[provider]}
-      Continue with {provider.charAt(0).toUpperCase() + provider.slice(1)}
+    <button type="button" onClick={onClick} className="w-full rounded-xl border border-border bg-secondary px-4 py-3 text-sm font-medium text-zinc-200 transition-colors hover:bg-accent">
+      <span className="flex items-center justify-center gap-2.5">
+        {logos[provider]}
+        Continue with {provider.charAt(0).toUpperCase() + provider.slice(1)}
+      </span>
     </button>
   );
 }
@@ -48,11 +47,15 @@ export default function SignupPage() {
     try {
       const supabase = createClient();
       const { error } = await supabase.auth.signUp({
-        email, password,
+        email,
+        password,
         options: { data: { full_name: name } },
       });
-      if (error) { setError(error.message); }
-      else { setSuccess(true); }
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccess(true);
+      }
     } catch {
       setError('An unexpected error occurred');
     } finally {
@@ -70,19 +73,17 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-green-500/15 border border-green-500/30 flex items-center justify-center mx-auto">
-          <svg className="w-6 h-6 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <div className="space-y-4 text-center">
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full border border-emerald-400/35 bg-emerald-500/10 text-emerald-300">
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <div>
-          <h2 className="text-lg font-bold mb-1">Check your email</h2>
-          <p className="text-sm text-muted-foreground">
-            We sent a verification link to <span className="text-foreground">{email}</span>
-          </p>
-        </div>
-        <Link href="/login" className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
+        <h2 className="text-xl font-semibold">Check your email</h2>
+        <p className="text-sm text-muted-foreground">
+          We sent a verification link to <span className="text-foreground">{email}</span>
+        </p>
+        <Link href="/login" className="text-sm font-medium text-foreground hover:underline">
           Back to sign in
         </Link>
       </div>
@@ -90,92 +91,82 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="space-y-5">
-      <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-bold">Create your account</h1>
-        <p className="text-sm text-muted-foreground">Start building mobile apps with AI</p>
-      </div>
+    <div>
+      <h1 className="text-2xl font-semibold tracking-tight">Create your account</h1>
+      <p className="mt-1 text-sm text-muted-foreground">Start building and shipping mobile apps with AI.</p>
 
-      <div className="space-y-2">
+      <div className="mt-6 space-y-2.5">
         <OAuthButton provider="google" onClick={() => handleOAuth('google')} />
         <OAuthButton provider="github" onClick={() => handleOAuth('github')} />
       </div>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center">
-          <span className="bg-card px-3 text-xs text-muted-foreground">or</span>
-        </div>
+      <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
+        <span className="h-px flex-1 bg-border" />
+        or use email
+        <span className="h-px flex-1 bg-border" />
       </div>
 
-      <form onSubmit={handleSignup} className="space-y-3">
-        {error && (
-          <div className="p-3 text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg">
-            {error}
-          </div>
-        )}
+      <form onSubmit={handleSignup} className="space-y-4">
+        {error && <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>}
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Name</label>
-          <div className="relative">
-            <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Name</span>
+          <span className="relative block">
+            <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full pl-9 pr-4 py-2.5 bg-muted border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white/15 transition-colors placeholder:text-muted-foreground/50"
+              className="w-full rounded-xl border border-border bg-secondary py-3 pl-10 pr-3 text-sm outline-none transition-colors placeholder:text-zinc-500 focus:border-zinc-500"
               required
             />
-          </div>
-        </div>
+          </span>
+        </label>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Email</label>
-          <div className="relative">
-            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Email</span>
+          <span className="relative block">
+            <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full pl-9 pr-4 py-2.5 bg-muted border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white/15 transition-colors placeholder:text-muted-foreground/50"
+              className="w-full rounded-xl border border-border bg-secondary py-3 pl-10 pr-3 text-sm outline-none transition-colors placeholder:text-zinc-500 focus:border-zinc-500"
               required
             />
-          </div>
-        </div>
+          </span>
+        </label>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Password</label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Password</span>
+          <span className="relative block">
+            <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="w-full pl-9 pr-4 py-2.5 bg-muted border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-white/15 transition-colors placeholder:text-muted-foreground/50"
+              placeholder="Minimum 6 characters"
+              className="w-full rounded-xl border border-border bg-secondary py-3 pl-10 pr-3 text-sm outline-none transition-colors placeholder:text-zinc-500 focus:border-zinc-500"
               minLength={6}
               required
             />
-          </div>
-          <p className="text-xs text-muted-foreground/70">Minimum 6 characters</p>
-        </div>
+          </span>
+        </label>
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-1"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-white py-3 text-sm font-semibold text-black transition-colors hover:bg-zinc-200 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {loading ? <><Loader2 className="w-4 h-4 animate-spin" />Creating account…</> : 'Create account'}
+          {loading ? <><Loader2 className="h-4 w-4 animate-spin" /> Creating account...</> : 'Create account'}
         </button>
       </form>
 
-      <p className="text-center text-xs text-muted-foreground">
+      <p className="mt-5 text-center text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link href="/login" className="text-foreground hover:underline underline-offset-4">
+        <Link href="/login" className="font-medium text-foreground hover:underline">
           Sign in
         </Link>
       </p>

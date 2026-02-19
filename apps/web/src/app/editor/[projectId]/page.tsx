@@ -13,7 +13,7 @@ import { CommandPalette } from '@/components/editor/CommandPalette';
 
 const PreviewPanel = dynamic(
   () => import('@/components/editor/PreviewPanel').then(mod => mod.PreviewPanel),
-  { ssr: false, loading: () => <div className="h-full flex items-center justify-center text-gray-500">Loading preview...</div> }
+  { ssr: false, loading: () => <div className="flex h-full items-center justify-center text-muted-foreground">Loading preview...</div> }
 );
 import { useProjectStore, type EditorFile, type UIMessage } from '@/stores/projectStore';
 import { useToast } from '@/components/ui/Toast';
@@ -191,8 +191,8 @@ export default function EditorPage() {
     return (
       <div className="h-screen flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400 mx-auto mb-4" />
-          <p className="text-gray-400">Loading project...</p>
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="text-muted-foreground">Loading project...</p>
         </div>
       </div>
     );
@@ -205,7 +205,7 @@ export default function EditorPage() {
           <p className="text-red-400 mb-4">{error}</p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="px-4 py-2 bg-white text-black rounded-lg font-medium hover:bg-gray-200"
+            className="rounded-xl bg-white px-4 py-2 font-semibold text-black transition-colors hover:bg-zinc-200"
           >
             Back to Dashboard
           </button>
@@ -215,7 +215,7 @@ export default function EditorPage() {
   }
   
   return (
-    <div className="h-screen flex flex-col bg-background overflow-hidden">
+    <div className="h-screen overflow-hidden bg-background">
       {/* Toolbar with view toggle */}
       <Toolbar 
         projectId={projectId} 
@@ -226,14 +226,12 @@ export default function EditorPage() {
       />
       
       {/* Main Content - Rork-style layout: Chat | Preview | QR */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left - Chat Panel (~35%) */}
-        <div className="w-[420px] border-r border-border flex-shrink-0">
+      <div className="flex h-[calc(100vh-56px)] overflow-hidden">
+        <div className="w-[420px] min-w-[360px] border-r border-border bg-card">
           <ChatPanel projectId={projectId} onViewCode={handleViewCode} />
         </div>
         
-        {/* Center - Preview OR Code (toggle, ~40%) */}
-        <div className="flex-1 min-w-0 relative">
+        <div className="relative min-w-0 flex-1">
           {viewMode === 'preview' ? (
             <PreviewPanel 
               projectId={projectId}
@@ -241,8 +239,8 @@ export default function EditorPage() {
               onDevicesChange={handleDevicesChange}
             />
           ) : (
-            <div className="h-full flex">
-              <div className="w-56 border-r border-border flex-shrink-0">
+            <div className="flex h-full">
+              <div className="w-60 flex-shrink-0 border-r border-border bg-card">
                 <FileTree />
               </div>
               <div className="flex-1 min-w-0">
@@ -252,8 +250,7 @@ export default function EditorPage() {
           )}
         </div>
         
-        {/* Right - QR Panel (~25%, max 300px) */}
-        <div className="w-[300px] flex-shrink-0">
+        <div className="w-[320px] flex-shrink-0 border-l border-border bg-card">
           <QRPanel 
             expoURL={expoURL}
             connectedDevices={connectedDevices}
