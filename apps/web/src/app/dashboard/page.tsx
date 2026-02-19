@@ -3,6 +3,7 @@ import { Sparkles, Zap, Folder, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { CreateProjectButton } from '@/components/dashboard/CreateProjectButton';
 import { ProjectCard } from '@/components/dashboard/ProjectCard';
+import { PendingPromptHandler } from '@/components/dashboard/PendingPromptHandler';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -12,6 +13,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <PendingPromptHandler />
       <section className="rounded-2xl border border-border bg-card p-6 sm:p-7">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>

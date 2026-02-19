@@ -32,12 +32,24 @@ export default function EditorPage() {
   const [viewMode, setViewMode] = useState<ViewMode>('preview');
   const [expoURL, setExpoURL] = useState<string | undefined>(undefined);
   const [connectedDevices, setConnectedDevices] = useState(0);
+  const [initialPrompt, setInitialPrompt] = useState<string | undefined>(undefined);
   
   const { setProject, files, setActiveFile } = useProjectStore();
   const { showToast } = useToast();
 
   // Auto-save dirty files every 2 seconds after changes
   useAutoSave({ projectId, delay: 2000, enabled: !loading });
+
+  // Pick up pending prompt from landing page
+  useEffect(() => {
+    if (!loading) {
+      const pending = sessionStorage.getItem('rork_pending_prompt');
+      if (pending) {
+        sessionStorage.removeItem('rork_pending_prompt');
+        setInitialPrompt(pending);
+      }
+    }
+  }, [loading]);
 
   // Keyboard shortcut for command palette (Cmd+K / Ctrl+K)
   useEffect(() => {
@@ -228,7 +240,7 @@ export default function EditorPage() {
       {/* Main Content - Rork-style layout: Chat | Preview | QR */}
       <div className="flex h-[calc(100vh-56px)] overflow-hidden">
         <div className="w-[420px] min-w-[360px] border-r border-border bg-card">
-          <ChatPanel projectId={projectId} onViewCode={handleViewCode} />
+          <ChatPanel projectId={projectId} onViewCode={handleViewCode} initialPrompt={initialPrompt} />
         </div>
         
         <div className="relative min-w-0 flex-1">

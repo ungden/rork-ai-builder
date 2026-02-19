@@ -20,12 +20,14 @@ function stripFileBlocks(text: string): string {
 interface ChatPanelProps {
   projectId: string;
   onViewCode?: (filePath?: string) => void;
+  initialPrompt?: string;
 }
 
-export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
+export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelProps) {
   const [input, setInput] = useState('');
   const [expandedFiles, setExpandedFiles] = useState<Record<string, boolean>>({}); // Per-message file list collapse
   const [showErrorDetails, setShowErrorDetails] = useState(false); // Error details expand
+  const [hasConsumedInitialPrompt, setHasConsumedInitialPrompt] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   
@@ -56,11 +58,25 @@ export function ChatPanel({ projectId, onViewCode }: ChatPanelProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, streamingContent]);
 
+  // Auto-send initial prompt from landing page
+  useEffect(() => {
+    if (initialPrompt && !hasConsumedInitialPrompt && !isAgentRunning) {
+      setHasConsumedInitialPrompt(true);
+      // Small delay to let the UI mount
+      const timer = setTimeout(() => {
+        handleAgentRun(initialPrompt);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialPrompt, hasConsumedInitialPrompt]);
+
   // Run Agent mode
-  const handleAgentRun = async () => {
-    if (!input.trim() || isAgentRunning) return;
+  const handleAgentRun = async (overridePrompt?: string) => {
+    const promptText = overridePrompt || input.trim();
+    if (!promptText || isAgentRunning) return;
     
-    const prompt = input.trim();
+    const prompt = promptText;
     setInput('');
     setStreamingContent('');
     
