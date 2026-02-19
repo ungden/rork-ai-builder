@@ -33,6 +33,7 @@ export function AgentStatus() {
     isRunning, 
     phase, 
     plan, 
+    planProgress,
     progress, 
     currentTool,
     files,
@@ -67,7 +68,12 @@ export function AgentStatus() {
           <span className={`text-sm font-medium ${phaseInfo.color}`}>
             {phaseInfo.label}
           </span>
-          {isRunning && currentTool && (
+          {isRunning && planProgress && planProgress.totalFiles > 0 && (
+            <span className="text-xs text-gray-500">
+              ({planProgress.completedFiles}/{planProgress.totalFiles}: {planProgress.currentFile.split('/').pop()})
+            </span>
+          )}
+          {isRunning && !planProgress && currentTool && (
             <span className="text-xs text-gray-500">
               ({currentTool})
             </span>

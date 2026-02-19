@@ -47,6 +47,7 @@ export type AgentEventType =
   | 'run_finish'
   | 'iteration'
   | 'plan_created'
+  | 'plan_progress'
   | 'step_start'
   | 'step_finish'
   | 'text_delta'
@@ -59,6 +60,12 @@ export type AgentEventType =
   | 'error'
   | 'complete';
 
+export interface PlanProgress {
+  currentFile: string;
+  completedFiles: number;
+  totalFiles: number;
+}
+
 export interface AgentEvent {
   type: AgentEventType;
   iteration?: number;
@@ -66,6 +73,7 @@ export interface AgentEvent {
   phase?: AgentPhase;
   message?: string;
   plan?: AppPlan;
+  progress?: PlanProgress;
   tool?: string;
   input?: unknown;
   result?: ToolResult;

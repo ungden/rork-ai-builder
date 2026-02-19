@@ -309,7 +309,7 @@ export async function POST(request: NextRequest) {
         let totalTokens = 0;
 
         if (isGemini) {
-          // ── Gemini path: use GeminiProvider.streamCode (write_file tool loop) ──
+          // ── Gemini path: agentic Plan → Write → Complete loop ──
           const geminiProvider = new GeminiProvider(apiKey);
           let fullText = '';
 
@@ -322,11 +322,41 @@ export async function POST(request: NextRequest) {
               controller.enqueue(encoder.encode(
                 `data: ${JSON.stringify({ type: 'text_delta', message: chunk.content })}\n\n`
               ));
+            } else if (chunk.type === 'plan' && chunk.plan) {
+              // Plan created — forward to agentStore
+              controller.enqueue(encoder.encode(
+                `data: ${JSON.stringify({ 
+                  type: 'plan_created', 
+                  plan: {
+                    appName: chunk.plan.appName,
+                    appType: chunk.plan.appType,
+                    features: chunk.plan.features,
+                    screens: chunk.plan.screens,
+                    fileTree: chunk.plan.fileTree,
+                    dependencies: chunk.plan.dependencies || [],
+                    planSteps: chunk.plan.planSteps || [],
+                  },
+                  message: `Plan: ${chunk.plan.appName} — ${chunk.plan.fileTree.length} files`,
+                })}\n\n`
+              ));
             } else if (chunk.type === 'file' && chunk.file) {
               const { path, content, language } = chunk.file;
               projectFiles[path] = { path, content, language };
               controller.enqueue(encoder.encode(
                 `data: ${JSON.stringify({ type: 'file_created', file: chunk.file })}\n\n`
+              ));
+            } else if (chunk.type === 'progress' && chunk.progress) {
+              // Progress update: "Writing file 3/8: components/Button.tsx"
+              controller.enqueue(encoder.encode(
+                `data: ${JSON.stringify({ 
+                  type: 'plan_progress',
+                  progress: chunk.progress,
+                  message: `Writing file ${chunk.progress.completedFiles}/${chunk.progress.totalFiles}: ${chunk.progress.currentFile}`,
+                })}\n\n`
+              ));
+            } else if (chunk.type === 'phase' && chunk.phase) {
+              controller.enqueue(encoder.encode(
+                `data: ${JSON.stringify({ type: 'phase_change', phase: chunk.phase })}\n\n`
               ));
             } else if (chunk.type === 'done') {
               totalTokens = (chunk.usage?.inputTokens ?? 0) + (chunk.usage?.outputTokens ?? 0);

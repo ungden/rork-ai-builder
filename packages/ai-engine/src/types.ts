@@ -47,11 +47,26 @@ export interface TokenUsage {
 }
 
 export interface StreamChunk {
-  type: 'text' | 'file' | 'done' | 'error';
+  type: 'text' | 'file' | 'done' | 'error' | 'plan' | 'progress' | 'phase';
   content?: string;
   file?: ParsedFile;
   error?: string;
   usage?: TokenUsage;
+  plan?: {
+    appName: string;
+    appType: string;
+    features: string[];
+    screens: string[];
+    fileTree: string[];
+    dependencies: string[];
+    planSteps: string[];
+  };
+  progress?: {
+    currentFile: string;
+    completedFiles: number;
+    totalFiles: number;
+  };
+  phase?: string;
 }
 
 export interface ValidationResult {

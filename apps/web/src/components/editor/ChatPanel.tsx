@@ -37,6 +37,7 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
     addMessage, 
     updateLastMessage,
     files,
+    addGeneratingFile,
     applyGeneratedFiles,
     streamingContent,
     appendStreamingContent,
@@ -49,6 +50,7 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
   const {
     isRunning: isAgentRunning,
     phase: agentPhase,
+    planProgress,
     startAgent,
     stopAgent,
     processEvent,
@@ -133,11 +135,16 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
                 if (data.type === 'file_created' || data.type === 'file_updated') {
                   if (data.file) {
                     generatedFiles.push(data.file);
+                    // Apply file immediately so Snack preview updates in real-time
+                    addGeneratingFile(data.file);
                     progressLines.push(`${data.type === 'file_created' ? 'Created' : 'Updated'} ${data.file.path}`);
                     appendStreamingContent(`- ${progressLines[progressLines.length - 1]}\n`);
                   }
                 } else if (data.type === 'text_delta' && data.message) {
                   appendStreamingContent(data.message);
+                } else if (data.type === 'plan_progress' && data.message) {
+                  // Don't flood chat — just update the last progress line
+                  // The AgentStatus component shows the real-time progress
                 } else if ((data.type === 'step_start' || data.type === 'step_finish' || data.type === 'plan_created') && data.message) {
                   appendStreamingContent(`\n${data.message}\n`);
                 } else if (data.type === 'agent_complete') {
@@ -261,7 +268,13 @@ export function ChatPanel({ projectId, onViewCode, initialPrompt }: ChatPanelPro
                         ) : (
                           <span className="flex items-center gap-2 text-gray-500">
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            {isAgentRunning ? 'Agent is building...' : 'Generating...'}
+                            {isAgentRunning 
+                              ? planProgress && planProgress.totalFiles > 0
+                                ? `Writing file ${planProgress.completedFiles}/${planProgress.totalFiles}...`
+                                : agentPhase === 'planning' 
+                                  ? 'Planning app structure...' 
+                                  : 'Agent is building...'
+                              : 'Generating...'}
                           </span>
                         )}
                       </div>

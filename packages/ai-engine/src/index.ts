@@ -33,6 +33,7 @@ export {
   type AgentConfig,
   type AgentResult,
   type AppPlan,
+  type PlanProgress,
 } from './agent';
 
 

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { AgentPhase, AgentEvent, AppPlan } from '@ai-engine/core';
+import type { AgentPhase, AgentEvent, AppPlan, PlanProgress } from '@ai-engine/core';
 import { getLanguageFromPath } from '@/lib/language';
 
 export interface AgentFile {
@@ -24,6 +24,7 @@ interface AgentState {
   isRunning: boolean;
   phase: AgentPhase;
   plan: AppPlan | null;
+  planProgress: PlanProgress | null;
   files: Record<string, AgentFile>;
   messages: AgentMessage[];
   progress: number; // 0-100
@@ -57,6 +58,7 @@ const initialState = {
   isRunning: false,
   phase: 'idle' as AgentPhase,
   plan: null,
+  planProgress: null as PlanProgress | null,
   files: {},
   messages: [],
   progress: 0,
@@ -90,6 +92,7 @@ export const useAgentStore = create<AgentState>()(
       state.messages = [];
       state.files = {};
       state.plan = null;
+      state.planProgress = null;
       state.iterations = 0;
       state.summary = null;
       state.filesCreated = [];
@@ -265,6 +268,17 @@ export const useAgentStore = create<AgentState>()(
             content: event.message || 'Plan created',
             timestamp: new Date(),
           });
+          break;
+
+        case 'plan_progress':
+          if (event.progress) {
+            state.planProgress = event.progress;
+            // Update progress bar: plan phase = 10-30, coding = 30-90
+            if (event.progress.totalFiles > 0) {
+              const ratio = event.progress.completedFiles / event.progress.totalFiles;
+              state.progress = Math.min(90, 30 + Math.round(ratio * 60));
+            }
+          }
           break;
 
         case 'step_start':
