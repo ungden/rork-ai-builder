@@ -12,7 +12,6 @@
   "dependencies": {
     "@ai-engine/core": "workspace:*",
     "@anthropic-ai/sdk": "^0.72.1",
-    "@codesandbox/sandpack-react": "^2.20.0",
     "@google/genai": "^1.39.0",
     "@monaco-editor/react": "^4.7.0",
     "@octokit/rest": "^22.0.1",
@@ -28,7 +27,7 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-markdown": "^10.1.0",
-    "react-native-web": "~0.19.13",
+    "snack-sdk": "^6.6.0",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.4.0",
     "zustand": "^5.0.11"
