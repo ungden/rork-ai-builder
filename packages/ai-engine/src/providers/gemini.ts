@@ -9,7 +9,7 @@ import type {
 import { getLanguageFromPath } from '../tools';
 import { FULL_SYSTEM_PROMPT } from '../prompts';
 
-const GEMINI_MODEL = 'gemini-3-pro-preview';
+const GEMINI_MODEL = 'gemini-2.5-pro';
 
 // Maximum number of API calls to prevent infinite loops / runaway costs
 const MAX_API_CALLS = 100;
@@ -260,7 +260,7 @@ export class GeminiProvider implements AIProvider {
               plan_steps?: string[];
             };
 
-            planFileTree = (args.file_tree || []).map((f) => f.trim());
+            planFileTree = (args.file_tree || []).map((f) => f.trim().replace(/^\/+/, ''));
             planData = {
               appName: args.app_name || 'App',
               appType: args.app_type || 'general',
@@ -300,7 +300,7 @@ export class GeminiProvider implements AIProvider {
           } else if (fc.name === 'write_file' && fc.args) {
             const args = fc.args as { path: string; content: string };
             if (args.path && args.content) {
-              const filePath = args.path.trim();
+              const filePath = args.path.trim().replace(/^\/+/, '');
               writtenFiles.add(filePath);
 
               yield {

@@ -299,12 +299,13 @@ export async function POST(request: NextRequest) {
         };
         
         // Save user message
-        await supabase.from('messages').insert({
+        const { error: userMsgErr } = await supabase.from('messages').insert({
           project_id: projectId,
           role: 'user',
           content: `[${agentMode === 'plan' ? 'Plan' : 'Agent'} Mode] ${prompt}`,
           model,
         });
+        if (userMsgErr) console.error('Failed to save user message:', userMsgErr);
 
         let summaryContent: string;
         let totalTokens = 0;
@@ -400,20 +401,22 @@ export async function POST(request: NextRequest) {
           })}\n\n`
         ));
 
-        // Save all generated files to database AFTER sending the event
+        // Save all generated files to database AFTER sending the event in a single batch
         if (Object.keys(projectFiles).length > 0) {
-          for (const file of Object.values(projectFiles)) {
-            await supabase
-              .from('project_files')
-              .upsert({
-                project_id: projectId,
-                path: file.path,
-                content: file.content,
-                language: file.language,
-              }, {
-                onConflict: 'project_id,path',
-              });
-          }
+          const upsertData = Object.values(projectFiles).map(file => ({
+            project_id: projectId,
+            path: file.path,
+            content: file.content,
+            language: file.language,
+          }));
+          
+          const { error: filesErr } = await supabase
+            .from('project_files')
+            .upsert(upsertData, {
+              onConflict: 'project_id,path',
+            });
+            
+          if (filesErr) console.error('Failed to save project files:', filesErr);
           
           await supabase
             .from('projects')
@@ -422,7 +425,7 @@ export async function POST(request: NextRequest) {
         }
         
         // Save assistant summary message
-        await supabase.from('messages').insert({
+        const { error: asstMsgErr } = await supabase.from('messages').insert({
           project_id: projectId,
           role: 'assistant',
           content: summaryContent,
@@ -430,6 +433,7 @@ export async function POST(request: NextRequest) {
           files_changed: Object.keys(projectFiles),
           tokens_used: totalTokens,
         });
+        if (asstMsgErr) console.error('Failed to save assistant message:', asstMsgErr);
         
         controller.close();
         

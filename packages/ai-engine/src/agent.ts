@@ -232,6 +232,11 @@ export class RorkAgent {
             // Update phase based on tool
             this.updatePhaseFromTool(toolName);
 
+            // Normalize path for file-related tools before execution
+            if ('path' in toolInput && typeof toolInput.path === 'string') {
+              toolInput.path = toolInput.path.trim().replace(/^\/+/, '');
+            }
+
             // Execute tool
             let result = await executeTool(executor, toolName, toolInput);
 
@@ -256,7 +261,7 @@ export class RorkAgent {
                 appType: planInput.app_type,
                 features: planInput.features,
                 screens: planInput.screens,
-                fileTree: planInput.file_tree,
+                fileTree: (planInput.file_tree || []).map(f => f.trim().replace(/^\/+/, '')),
                 dependencies: planInput.dependencies || [],
                 planSteps: planInput.plan_steps || [],
               };

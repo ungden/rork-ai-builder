@@ -35,6 +35,14 @@ function transformFilesToSnack(files: Record<string, { path: string; content: st
   Object.values(files).forEach((file) => {
     const path = file.path.startsWith('/') ? file.path.slice(1) : file.path;
     if (path.match(/\.(png|jpg|jpeg|gif|svg|ico|webp)$/i)) return;
+    
+    // EXTREMELY IMPORTANT: Never send configuration files to Snack Web Player.
+    // Snack already provides its own babel, typescript, and metro configurations.
+    // If we send custom ones, it breaks the entire Preview with Babel/Flow errors.
+    if (['package.json', 'babel.config.js', 'tsconfig.json', 'app.json', 'metro.config.js'].includes(path)) {
+      return;
+    }
+    
     snackFiles[path] = { type: 'CODE', contents: file.content };
   });
   return snackFiles;
