@@ -189,8 +189,7 @@ export class GeminiProvider implements AIProvider {
     }
 
     // Create chat session with all 3 tools
-    // Gemini 3: use thinkingConfig.thinkingLevel instead of legacy thinking_budget
-    // temperature must stay at 1.0 (default) per Gemini 3 docs
+    // We removed thinkingConfig because gemini-2.5-pro does not support it
     const chat = this.ai.chats.create({
       model: GEMINI_MODEL,
       config: {
@@ -198,7 +197,6 @@ export class GeminiProvider implements AIProvider {
         systemInstruction: fullSystemPrompt,
         maxOutputTokens: maxTokens,
         temperature: 1.0,
-        thinkingConfig: { thinkingLevel: ThinkingLevel.HIGH },
       },
       history: this.formatHistory(conversationHistory),
     });
