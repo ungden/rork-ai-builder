@@ -9,7 +9,7 @@ import type {
 import { getLanguageFromPath } from '../tools';
 import { FULL_SYSTEM_PROMPT } from '../prompts';
 
-const GEMINI_MODEL = 'gemini-2.5-pro';
+const GEMINI_MODEL = 'gemini-3.1-pro-preview';
 
 // Maximum number of API calls to prevent infinite loops / runaway costs
 const MAX_API_CALLS = 100;
